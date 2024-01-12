@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#d0d0d0">
+  <meta name="author" content="Jarlor Zhang">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="序言在大数据领域，Hadoop生态系统是目前最受欢迎的大数据处理框架，它包括Hadoop、Hive、HBase、Spark、Flink等多个关键组件，这些组件可以协同工作，建立出一个全面的大数据处理系统。但是，这些组件的安装和配置(完全分布式集群)是一件非常繁琐的事情。对于想入门大数据，创建一个学习用的大数据环境的同学来说，无疑是一道难以逾越的鸿沟。本文将介绍如何使用Docker和Ambari，在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hadoop生态集群快速搭建(Powerd by Docker、Ambari)">
+<meta property="og:url" content="https://www.jarlor.site/2023/10/15/hadoop-on-docker/index.html">
+<meta property="og:site_name" content="Personal Blog">
+<meta property="og:description" content="序言在大数据领域，Hadoop生态系统是目前最受欢迎的大数据处理框架，它包括Hadoop、Hive、HBase、Spark、Flink等多个关键组件，这些组件可以协同工作，建立出一个全面的大数据处理系统。但是，这些组件的安装和配置(完全分布式集群)是一件非常繁琐的事情。对于想入门大数据，创建一个学习用的大数据环境的同学来说，无疑是一道难以逾越的鸿沟。本文将介绍如何使用Docker和Ambari，在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015214723532.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015230011968.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015231151885.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015231733821.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015232048711.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015233104611.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015233453377.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015234015525.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015234802076.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231015235837102.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016000348606.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016000752830.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016001214719.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016001450332.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016001649302.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016001917507.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016002126440.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016002248259.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016095714323.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016095953950.png">
+<meta property="og:image" content="https://www.jarlor.site/images/image-20231016100630253.png">
+<meta property="article:published_time" content="2023-10-15T09:09:10.000Z">
+<meta property="article:modified_time" content="2024-01-04T16:08:32.802Z">
+<meta property="article:author" content="Jarlor Zhang">
+<meta property="article:tag" content="hadoop">
+<meta property="article:tag" content="docker">
+<meta property="article:tag" content="bigdata">
+<meta property="article:tag" content="tutorial">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.jarlor.site/images/image-20231015214723532.png">
+  
+  
+  
+  <title>Hadoop生态集群快速搭建(Powerd by Docker、Ambari) - Personal Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"www.jarlor.site","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"fQOVkqWAyVfh8xKdYJfB8fXn-gzGzoHsz","app_key":"F4ay9DRk41Pfx3kj2No9DtoD","server_url":"https://fqovkqwa.lc-cn-n1-shared.com","path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+    <!-- Google tag (gtag.js) -->
+    <script async>
+      if (!Fluid.ctx.dnt) {
+        Fluid.utils.createScript("https://www.googletagmanager.com/gtag/js?id=", function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', '');
+        });
+      }
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Personal Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>HomePage</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/../images/hadoop_on_docker.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Hadoop生态集群快速搭建(Powerd by Docker、Ambari)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-10-15 17:09" pubdate>
+          2023年10月15日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          31 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Hadoop生态集群快速搭建(Powerd by Docker、Ambari)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h2><p>在大数据领域，<a target="_blank" rel="noopener" href="https://hadoop.apache.org/">Hadoop</a>生态系统是目前最受欢迎的大数据处理框架，它包括Hadoop、Hive、HBase、Spark、Flink等多个关键组件，这些组件可以协同工作，建立出一个全面的大数据处理系统。<br>但是，这些组件的安装和配置(完全分布式集群)是一件非常繁琐的事情。对于想入门大数据，创建一个学习用的大数据环境的同学来说，无疑是一道难以逾越的鸿沟。<br>本文将介绍如何使用<a target="_blank" rel="noopener" href="https://www.docker.com/">Docker</a>和<a target="_blank" rel="noopener" href="https://ambari.apache.org/">Ambari</a>，在一台主机上快速搭建Hadoop生态集群。</p>
+<h2 id="特别提醒"><a href="#特别提醒" class="headerlink" title="特别提醒"></a>特别提醒</h2><p><strong>本环境搭建下的hadoop生态集群供学习使用，为降低搭建难度，作者刻意弱化了集群安全性部署，故该集群不适用于生产环境。</strong></p>
+<h2 id="前置准备"><a href="#前置准备" class="headerlink" title="前置准备"></a>前置准备</h2><p>一台Ubuntu系统的Linux宿主机(支持虚拟机)</p>
+<ol>
+<li>最低内存 6 G。</li>
+<li>最低存储 50 G。</li>
+<li>已经安装并配置好 docker。</li>
+<li>已经安装并配置好git。</li>
+<li>已配置好静态IP。</li>
+<li>可联网(最好可连外网)。</li>
+</ol>
+<p>克隆<a target="_blank" rel="noopener" href="https://github.com/jarlor/hadoop_on_docker">Github仓库</a>到Linux宿主机</p>
+<ol>
+<li>这里提供github仓库地址:<a target="_blank" rel="noopener" href="https://github.com/jarlor/hadoop_on_docker.git">https://github.com/jarlor/hadoop_on_docker.git</a></li>
+<li><strong>下文的一切操作都将基于克隆下来的仓库所在目录</strong></li>
+</ol>
+<p>下载相关离线软件(资源比较多,约7G)</p>
+<ol>
+<li><p>这里提供百度网盘链接:<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1gTkuPH_IdcZBvwzAK4Ew-A?pwd=here">https://pan.baidu.com/s/1gTkuPH_IdcZBvwzAK4Ew-A?pwd=here</a></p>
+<blockquote>
+<p>注:HDP标准版的软件包远大于此，为进一步精简该包，本下载链接只保留了大数据标准组件。如需更多组件，请去<a target="_blank" rel="noopener" href="https://pan.baidu.com/s/110Q_kH6k3h5D_nJhpvUzRw?pwd=here">此链接</a>下载。</p>
+</blockquote>
+</li>
+<li><p>请将文件下载到上一步克隆下来的仓库目录下的software&#x2F;文件夹下。举例如下图:</p>
+</li>
+</ol>
+<p><img src="/../images/image-20231015214723532.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="Ambari配置与安装"><a href="#Ambari配置与安装" class="headerlink" title="Ambari配置与安装"></a>Ambari配置与安装</h2><h3 id="编辑全局环境配置"><a href="#编辑全局环境配置" class="headerlink" title="编辑全局环境配置"></a>编辑全局环境配置</h3><p>本小节的目的是配置脚本运行环境必要的参数，涉及到的文件是 <a target="_blank" rel="noopener" href="https://github.com/jarlor/hadoop_on_docker/blob/main/cluster_config">hadoop_on_docker&#x2F;cluster_config</a>。</p>
+<p>请根据注释填写相关配置项。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#集群参数配置</span><br><br><br><span class="hljs-comment">#本机ip</span><br><span class="hljs-built_in">export</span> host_ip=<span class="hljs-string">&#x27;192.168.100.100&#x27;</span><br><span class="hljs-comment">#网卡名</span><br><span class="hljs-built_in">export</span> netcard_name=<span class="hljs-string">&#x27;ens33&#x27;</span><br><span class="hljs-comment">#网关</span><br><span class="hljs-built_in">export</span> host_gateway=<span class="hljs-string">&#x27;192.168.100.2&#x27;</span> <br><span class="hljs-comment">#网段</span><br><span class="hljs-built_in">export</span> host_subnet=<span class="hljs-string">&#x27;192.168.100.0/24&#x27;</span><br><span class="hljs-comment">#自定义节点ip</span><br><span class="hljs-built_in">export</span> ip_hadoop1=<span class="hljs-string">&#x27;192.168.100.101&#x27;</span><br><span class="hljs-built_in">export</span> ip_hadoop2=<span class="hljs-string">&#x27;192.168.100.102&#x27;</span><br><span class="hljs-built_in">export</span> ip_hadoop3=<span class="hljs-string">&#x27;192.168.100.103&#x27;</span><br><br><span class="hljs-comment">#jdk文件路径</span><br><span class="hljs-built_in">export</span> jdk_file_path=<span class="hljs-string">&#x27;./software/jdk-8u212-linux-x64.tar.gz&#x27;</span><br><span class="hljs-built_in">export</span> jdk_file_name=<span class="hljs-string">&#x27;jdk-8u212-linux-x64.tar.gz&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>注:<code>jdk文件路径</code>参数暂不支持修改(当前版本暂不支持自定义jdk路径，后期计划支持)</strong></p>
+<h3 id="提高待运行脚本权限"><a href="#提高待运行脚本权限" class="headerlink" title="提高待运行脚本权限"></a>提高待运行脚本权限</h3><p>本小节的目的是赋予脚本<a target="_blank" rel="noopener" href="https://github.com/jarlor/hadoop_on_docker/blob/main/cluster-control">hadoop_on_docker&#x2F;cluster-control</a>可执行权限。相关操作如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> +x ./cluster-control<br></code></pre></td></tr></table></figure>
+
+<h3 id="部署Ambari集群"><a href="#部署Ambari集群" class="headerlink" title="部署Ambari集群"></a>部署Ambari集群</h3><p>本小节的目的是开始部署hadoop生态集群，将执行脚本<a target="_blank" rel="noopener" href="https://github.com/jarlor/hadoop_on_docker/blob/main/cluster-control">hadoop_on_docker&#x2F;cluster-control</a>。相关操作如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./cluster-control build<br></code></pre></td></tr></table></figure>
+
+<p>注:该脚本支持多种操作，baokuo</p>
+<p>出现以下截图内容视为启动成功:</p>
+<p><img src="/../images/image-20231015230011968.png" srcset="/img/loading.gif" lazyload alt="集群部署成功标识"></p>
+<p><strong>注:如果找不到截图中的内容，大概率是日志输出太多被刷上去了。脚本未报错退出也可视为部署成功。</strong></p>
+<h3 id="配置与安装Ambari"><a href="#配置与安装Ambari" class="headerlink" title="配置与安装Ambari"></a>配置与安装Ambari</h3><p>本小节的目的是配置Ambari-大数据集群管理系统，后续的大数据组件(DHFS，Zookeeper等)都可经Ambari一键安装。</p>
+<p>1.打开浏览器，进入<code>ambari web</code>端页面(如下图所示)。地址格式为<strong>http:&#x2F;&#x2F;&lt;Linux宿主机本机ip地址&gt;:8080</strong>。</p>
+<blockquote>
+<p>例:我的Linux宿主机本机ip地址为<code>192.168.100.100</code>,即地址为 <a target="_blank" rel="noopener" href="http://192.168.100.100:8080/">http://192.168.100.100:8080</a></p>
+</blockquote>
+<p><img src="/../images/image-20231015231151885.png" srcset="/img/loading.gif" lazyload alt="ambri web端页面"></p>
+<p>2.登录<code>ambari</code>(登录成功后页面如下图所示),<code>username</code>和<code>password</code>如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">username:admin<br>password:admin	<br></code></pre></td></tr></table></figure>
+
+<p><img src="/../images/image-20231015231733821.png" srcset="/img/loading.gif" lazyload alt="ambari登录成功页面"></p>
+<p>3.点击<code>LAUNCH INSTALL WIZARD</code>并配置集群名称,此处名称可自定义(如下图所示)。</p>
+<p><img src="/../images/image-20231015232048711.png" srcset="/img/loading.gif" lazyload alt="配置集群名称"></p>
+<p>4.配置自定义软件源.并在下图红框标识处填下以下信息:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">http://httpd:18080/HDP/centos7/3.1.5.0-152/<br>http://httpd:18080/HDP-GPL/centos7/3.1.5.0-152/<br>http://httpd:18080/HDP-UTILS/centos7/1.1.0.22/<br></code></pre></td></tr></table></figure>
+
+<p><img src="/../images/image-20231015233104611.png" srcset="/img/loading.gif" lazyload alt="配置自定义软件源"></p>
+<p>5.在指定位置填写集群节点目标主机(如下图红框所示).填写内容如下:</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs smali">hadoop1<br>hadoop2<br>hadoop3<br></code></pre></td></tr></table></figure>
+
+<p><strong>注:此处填写内容为一行一个主机名,注意换行,注意空格。</strong></p>
+<p><img src="/../images/image-20231015233453377.png" srcset="/img/loading.gif" lazyload alt="集群节点目标主机填写"></p>
+<p>6.还是在这个页面,填写ambari-server的ssh私钥.<strong>请重写打开一个终端</strong>,并输入以下命令获取ambari-server私钥:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker <span class="hljs-built_in">exec</span> -it ambari-server <span class="hljs-built_in">cat</span> ~/.ssh/id_rsa<br></code></pre></td></tr></table></figure>
+
+<p>将上方命令返回的结果完整复制并完整粘贴到下图所示位置:</p>
+<p><img src="/../images/image-20231015234015525.png" srcset="/img/loading.gif" lazyload alt="配置Ambari客户端ssh私钥"></p>
+<p>*<em>注释:此处粘贴内容依旧要注意换行,注意空格。</em></p>
+<p>7.点击下一步,若弹出<code>Warning</code>则选择 <code>CONTINUE</code>。</p>
+<p>8.进入集群节点的ambari-agent安装界面，等待安装成功即可点击<code>NEXT</code>(成功界面入下图所示)。</p>
+<p>弹出<code>Host Check Warning</code>选择<code>OK</code>。</p>
+<p><img src="/../images/image-20231015234802076.png" srcset="/img/loading.gif" lazyload alt="集群节点ambari-agent安装成功界面"></p>
+<h2 id="安装大数据组件"><a href="#安装大数据组件" class="headerlink" title="安装大数据组件"></a>安装大数据组件</h2><p>前一章已经完成ambari-server和ambari-agent的配置与安装，为本章安装大数据组件提供了十分高效的环境。</p>
+<p>本章将承接上一章的安装进度,继续安装常用的大数据组件:HDFS、YARN、MapReduce等。</p>
+<h3 id="勾选目标大数据组件"><a href="#勾选目标大数据组件" class="headerlink" title="勾选目标大数据组件"></a>勾选目标大数据组件</h3><p>本小节的目的是选择我们要安装的大数据组件，如下图所示:</p>
+<p><img src="/../images/image-20231015235837102.png" srcset="/img/loading.gif" lazyload alt="要安装的大数据组件"></p>
+<p>勾选完成后点击<code>NEXT</code>。弹出<code>Limited Functionality Warning</code>请选择<code>PROCEED ANYWAY</code>。</p>
+<h3 id="集群节点间分配组件"><a href="#集群节点间分配组件" class="headerlink" title="集群节点间分配组件"></a>集群节点间分配组件</h3><p>本小节的目的是在集群节点间分配组件，此处取ambari默认给出的分配结果即可(如下图所示)。</p>
+<p><img src="/../images/image-20231016000348606.png" srcset="/img/loading.gif" lazyload alt="ambari默认分配组件结果"></p>
+<p>点击<code>NEXT</code>。</p>
+<h3 id="集群节点间配置主从关系"><a href="#集群节点间配置主从关系" class="headerlink" title="集群节点间配置主从关系"></a>集群节点间配置主从关系</h3><p>本小节的目的是在集群节点间配置部分组件的主从关系。此处<strong>不取</strong>ambari默认给出的配置结果。调整配置结果如下图所示:</p>
+<p><img src="/../images/image-20231016000752830.png" srcset="/img/loading.gif" lazyload alt="集群节点间主从关系配置"></p>
+<p>点击<code>NEXT</code>。</p>
+<h3 id="配置部分组件账号密码"><a href="#配置部分组件账号密码" class="headerlink" title="配置部分组件账号密码"></a>配置部分组件账号密码</h3><p>本小节的目的在于配置<code>Grafana</code>和<code>HDFS</code>管理员账号和密码(如下图所示)。<strong>建议密码都设置成admin</strong>，方便记忆及后续管理。</p>
+<p> <img src="/../images/image-20231016001214719.png" srcset="/img/loading.gif" lazyload alt="Grafana和HDFS账号密码配置"></p>
+<p>输入完成后点击<code>NEXT</code>。</p>
+<h3 id="配置数据目录"><a href="#配置数据目录" class="headerlink" title="配置数据目录"></a>配置数据目录</h3><p>本小节的目的在于配置集群的数据持久化目录。此处取ambari默认给出的目录地址即可(如下图所示)。</p>
+<p><img src="/../images/image-20231016001450332.png" srcset="/img/loading.gif" lazyload alt="ambari默认给出的数据目录"></p>
+<p>点击<code>NEXT</code>。</p>
+<h3 id="配置各组件管理员账号"><a href="#配置各组件管理员账号" class="headerlink" title="配置各组件管理员账号"></a>配置各组件管理员账号</h3><p>本小节的目的在于配置集群各组件的账号。此处取ambari默认给出的结果即可(如下图所示)。</p>
+<p><img src="/../images/image-20231016001649302.png" srcset="/img/loading.gif" lazyload alt="ambari默认给出的账号分配"></p>
+<p>点击<code>NEXT</code>。</p>
+<h3 id="组件资源管理配置"><a href="#组件资源管理配置" class="headerlink" title="组件资源管理配置"></a>组件资源管理配置</h3><p>本小节的目的在于配置集群各组件的资源消耗管理。此处取ambari默认给出的结果即可(如下图所示)。</p>
+<p><img src="/../images/image-20231016001917507.png" srcset="/img/loading.gif" lazyload alt="ambari默认给出的组件资源管理配置"></p>
+<p>点击<code>NEXT</code>。</p>
+<h3 id="开始部署组件"><a href="#开始部署组件" class="headerlink" title="开始部署组件"></a>开始部署组件</h3><p>本小节开始部署各组件。</p>
+<p>在部署前ambari要求确认部署配置信息(如下图所示)。读者确认无误后可点击<code>DEPLOY</code>。</p>
+<p><img src="/../images/image-20231016002126440.png" srcset="/img/loading.gif" lazyload alt="确认部署配置信息界面"></p>
+<p>点击<code>DEPLOY</code>后进入正式安装界面(如下图所示)。部署耗时很长，等着吧。</p>
+<p><img src="/../images/image-20231016002248259.png" srcset="/img/loading.gif" lazyload alt="各组件部署进度界面"></p>
+<p>出现以下界面视为部署成功:</p>
+<p><img src="/../images/image-20231016095714323.png" srcset="/img/loading.gif" lazyload alt="组件部署成功页面"></p>
+<p>点击<code>NEXT</code>，获取集群节点间组件分配概述(如下图所示)。</p>
+<p><img src="/../images/image-20231016095953950.png" srcset="/img/loading.gif" lazyload alt="集群节点间组件分配概述"></p>
+<p>点击<code>COMPLETE</code>，跳转至Ambari资源看板(如下图所示)。</p>
+<p><img src="/../images/image-20231016100630253.png" srcset="/img/loading.gif" lazyload alt="AMbari资源看板"></p>
+<p><strong>至此,COMPLETE!</strong></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>本项目已在Github开源，地址为:<a target="_blank" rel="noopener" href="https://github.com/jarlor/hadoop_on_docker">https://github.com/jarlor/hadoop_on_docker</a> 。</p>
+<p>本文并未介绍过多的技术细节(计划出一篇博客单独介绍)，侧重快速应用这一项目去搭建环境。由于是新生项目，还有众多可优化点，欢迎各位同学来github提Issue和PR。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://blog.wangqi.love/articles/docker/ubuntu%2022.04%20%E7%9A%84cgroup%E9%97%AE%E9%A2%98.html">ubuntu 22.04 的cgroup问题 | wangqi的blog</a></p>
+<p><a target="_blank" rel="noopener" href="https://smalloutcome.com/2021/07/18/Docker-%E4%BD%BF%E7%94%A8-macvlan-%E7%BD%91%E7%BB%9C%E5%AE%B9%E5%99%A8%E4%B8%8E%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9A%84%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B/">Docker 使用 macvlan 网络容器与宿主机的通信过程 | 一小步</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/liugp/p/17489616.html">通过 docker-compose 快速部署 Apache Ambari 保姆级教程 - 大数据老司机 - 博客园</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/kwame211/article/details/105635459">Ambari Confirm Hosts Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password).-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.ly-zone.cloud/archives/docker%E9%83%A8%E7%BD%B2ambari-273%E5%A4%A7%E6%95%B0%E6%8D%AE%E9%9B%86%E7%BE%A4%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BAmd">Docker部署ambari-2.7.3（大数据集群快速搭建）</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" class="category-chain-item">大数据</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/hadoop/" class="print-no-link">#hadoop</a>
+      
+        <a href="/tags/docker/" class="print-no-link">#docker</a>
+      
+        <a href="/tags/bigdata/" class="print-no-link">#bigdata</a>
+      
+        <a href="/tags/tutorial/" class="print-no-link">#tutorial</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Hadoop生态集群快速搭建(Powerd by Docker、Ambari)</div>
+      <div>https://www.jarlor.site/2023/10/15/hadoop-on-docker/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Jarlor Zhang</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年10月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/10/26/python-cataching-global-exception/" title="在无特定框架约束的Python项目中实现全局异常处理机制">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">在无特定框架约束的Python项目中实现全局异常处理机制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/10/11/hello-world/" title="Hello World">
+                        <span class="hidden-mobile">Hello World</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"fQOVkqWAyVfh8xKdYJfB8fXn-gzGzoHsz","appKey":"F4ay9DRk41Pfx3kj2No9DtoD","path":"window.location.pathname","placeholder":"say something","avatar":"retro","meta":["nick","mail"],"requiredFields":[],"visitor":true,"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":true,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+    <!-- 备案信息 ICP for China -->
+    <div class="beian">
+  <span>
+    <a href="http://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+      豫ICP备2024042716号-1
+    </a>
+  </span>
+  
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
