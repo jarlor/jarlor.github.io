@@ -6,7 +6,7 @@
   <link href="https://www.jarlor.site/atom.xml" rel="self"/>
   
   <link href="https://www.jarlor.site/"/>
-  <updated>2024-03-06T10:32:40.299Z</updated>
+  <updated>2024-03-08T07:28:33.089Z</updated>
   <id>https://www.jarlor.site/</id>
   
   <author>
@@ -15,6 +15,34 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>WSL2的网络相关问题</title>
+    <link href="https://www.jarlor.site/2024/03/08/wsl-network/"/>
+    <id>https://www.jarlor.site/2024/03/08/wsl-network/</id>
+    <published>2024-03-08T07:23:56.000Z</published>
+    <updated>2024-03-08T07:28:33.089Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="镜像网络模式"><a href="#镜像网络模式" class="headerlink" title="镜像网络模式"></a>镜像网络模式</h1><p>WSL2 的2.0.0版本新增一种网络模式:<a href="https://github.com/microsoft/WSL/releases/tag/2.0.0">Mirrored</a>。这种模式旨在提高 WSL2 和 Host 的网络兼容性问题。这是当下 WSL2 最优的网络解决方案。在接下来的章节中，也将基于该网络模式做介绍。</p><h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>启用该网络模式需要将 WSL2 升级至2.0.0+以上版本并在Host中配置<code>.wslconfig</code>文件。</p><ul><li><p>在命令提示符中输入<code>wsl --update</code> 升级WSL2，确保 WSL2 的版本在2.0.0以上。</p></li><li><p>默认情况下，<code>.wslconfig</code> 文件不存在。必须在中创建它并将其存储在您的<code>%UserProfile%</code>目录中才能应用这些配置设置。</p></li><li><p>用于在作为 WSL 2 版本运行的所有已安装的 Linux 发行版中<strong>全局配置</strong>设置。</p></li><li><p><strong>只能用于 WSL 2 运行的分发</strong>。作为 WSL 1 运行的发行版不会受到此配置的影响，因为它们不是作为虚拟机运行的。</p></li><li><p>若要访问你的目录，请在 PowerShell 中用于访问你的主目录（通常是你的用户配置文件），也可以打开 Windows 文件资源管理器并在地址栏中输入<code>%UserProfile%</code>。</p></li><li><p>打开目录后即可创建<code>.wslconfig</code> 文件并写入以下配置项：</p>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">[wsl2]<br>networkingMode=mirrored<br>dnsTunneling=<span class="hljs-literal">true</span><br>firewall=<span class="hljs-literal">true</span>![20240308_01](/../images/20240308_01.png)<br>autoProxy=<span class="hljs-literal">true</span><br>[experimental]<br>hostAddressLoopback=<span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure><p>  可以注意到除了<code>networkingMode=mirrored</code>之外还有其余配置项，这些配置项不建议删除，建议一起写入。</p></li><li><p><code>.wslconfig</code> 文件写入后需重启 WSL2 ：在命令提示符中输入<code>wsl —shutdown</code> 。关闭后再打开WSL2 的shell即可完成重启。</p></li><li><p>此时可以看到WSL和Host的IP一致。</p><p>  <img src="/../images/20240308_01.png" alt="WSL2的网络相关问题"></p><p>  <img src="/../images/20240308_02.png" alt="alt text"></p></li></ul><h1 id="代理网络配置"><a href="#代理网络配置" class="headerlink" title="代理网络配置"></a>代理网络配置</h1><h2 id="系统代理模式"><a href="#系统代理模式" class="headerlink" title="系统代理模式"></a>系统代理模式</h2><p>如果在你的<code>.wslconfig</code> 配置文件中有<code>autoProxy=true</code> 这一项，则Host的系统代理将自动以环境变量的形式添加到 WSL2 中，如下图所示：</p><p><img src="/../images/20240308_03.png"></p><p><img src="/../images/20240308_04.png" alt="alt text"></p><p>在该模式下，第三方软件的代理网络问题仍需要去主动编辑其配置文件才能使代理生效。如Git、pip等。这里推荐TUN 代理模式。</p><h2 id="TUN代理模式"><a href="#TUN代理模式" class="headerlink" title="TUN代理模式"></a>TUN代理模式</h2><p>TUN代理模式在配置完成后，即可实现<strong>全流量代理</strong>，无须关注第三方软件自身的代理配置问题。</p><p>不同代理软件开启TUN模式的方法不一这里不再介绍。</p><p>在开启TUN模式后，基于镜像网络模式的 WSL2 会出现无法上网的情况。原因是由 TUN 创建的虚拟网卡的 mtu 出错。我们只需要将 WSL2 上的所有网卡的 mtu 都设置成 1500 即可解决问题。这里给出配置方法。</p><ul><li><p>编写一个shell脚本，用来将所有网卡的 mtu 设置成 1500。</p>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span><br><span class="hljs-comment">#用于修复Clash开启TUN模式后导致设置了镜像网络的Clash无法联网的问题的脚本</span><br><span class="hljs-comment"># 获取以 &quot;eth&quot; 开头的网卡名字并循环执行命令</span><br>ip -o <span class="hljs-built_in">link</span> show | awk -F<span class="hljs-string">&#x27;: &#x27;</span> <span class="hljs-string">&#x27;$2 ~ /^eth/&#123;print $2&#125;&#x27;</span> | <span class="hljs-keyword">while</span> <span class="hljs-built_in">read</span> -r interface; <span class="hljs-keyword">do</span><br>    /usr/sbin/ip <span class="hljs-built_in">link</span> <span class="hljs-built_in">set</span> <span class="hljs-string">&quot;<span class="hljs-variable">$interface</span>&quot;</span> mtu 1500<br><span class="hljs-keyword">done</span><br></code></pre></td></tr></table></figure></li><li><p>创建一个service以达到开机自启动该脚本。</p>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">[Unit]<br>Description=clash tun mtu fix<br>After=network-online.target<br><br>[Service]<br>ExecStart=/bin/bash /root/scripts/mtufix.sh <span class="hljs-comment">#脚本位置的绝对路径。</span><br><br>[Install]<br>WantedBy=multi-user.target                             <br></code></pre></td></tr></table></figure></li><li><p>加载该service并启动，同时观察该service的日志输出。</p>  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl daemon-reload <span class="hljs-comment">#重新加载service</span><br>systemctl start mtufix.service <span class="hljs-comment"># 启动该service</span><br>journalctl -u mtufix.service <span class="hljs-comment"># 查看日志</span><br></code></pre></td></tr></table></figure></li><li><p>出现successfully即表示成功</p><p>  <img src="/../images/20240308_05.png" alt="alt text"></p></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;镜像网络模式&quot;&gt;&lt;a href=&quot;#镜像网络模式&quot; class=&quot;headerlink&quot; title=&quot;镜像网络模式&quot;&gt;&lt;/a&gt;镜像网络模式&lt;/h1&gt;&lt;p&gt;WSL2 的2.0.0版本新增一种网络模式:&lt;a href=&quot;https://github.com/micr</summary>
+      
+    
+    
+    
+    <category term="WSL2" scheme="https://www.jarlor.site/categories/WSL2/"/>
+    
+    
+    <category term="网络" scheme="https://www.jarlor.site/tags/%E7%BD%91%E7%BB%9C/"/>
+    
+    <category term="代理" scheme="https://www.jarlor.site/tags/%E4%BB%A3%E7%90%86/"/>
+    
+    <category term="WSL2" scheme="https://www.jarlor.site/tags/WSL2/"/>
+    
+  </entry>
   
   <entry>
     <title>LaTeX Environment Build</title>
