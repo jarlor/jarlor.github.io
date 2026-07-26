@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Manrope, Source_Serif_4 } from "next/font/google";
-import { headers } from "next/headers";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -20,45 +19,35 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host =
-    requestHeaders.get("x-forwarded-host") ??
-    requestHeaders.get("host") ??
-    "localhost:3000";
-  const protocol =
-    requestHeaders.get("x-forwarded-proto") ??
-    (host.startsWith("localhost") ? "http" : "https");
-  const origin = `${protocol}://${host}`;
-  const title = "Jiale Zhang — AI Researcher at Fudan University";
-  const description =
-    "Personal research homepage of a computer science Ph.D. student at Fudan University, working on multi-agent systems, AI for Science, RAG, and generative retrieval.";
+const title = "Jiale Zhang — AI Researcher at Fudan University";
+const description =
+  "Personal research homepage of a computer science Ph.D. student at Fudan University, working on multi-agent systems, AI for Science, RAG, and generative retrieval.";
 
-  return {
-    metadataBase: new URL(origin),
+export const metadata: Metadata = {
+  metadataBase: new URL("https://jarlor.github.io"),
+  title,
+  description,
+  openGraph: {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: "website",
-      images: [
-        {
-          url: `${origin}/og-jiale.png`,
-          width: 1200,
-          height: 630,
-          alt: "Research profile for Jiale Zhang",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [`${origin}/og-jiale.png`],
-    },
-  };
-}
+    type: "website",
+    url: "https://jarlor.github.io",
+    images: [
+      {
+        url: "/og-jiale.png",
+        width: 1200,
+        height: 630,
+        alt: "Research profile for Jiale Zhang",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["/og-jiale.png"],
+  },
+};
 
 export default function RootLayout({
   children,
