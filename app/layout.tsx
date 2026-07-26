@@ -27,6 +27,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://jarlor.github.io"),
   title,
   description,
+  icons: {
+    icon: "/jiale-zhang.jpg",
+    apple: "/jiale-zhang.jpg",
+  },
   openGraph: {
     title,
     description,
