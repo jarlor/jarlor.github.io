@@ -7,11 +7,11 @@ import { useEffect } from "react";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const phrases = [
-  "multi-agent systems.",
-  "AI-enabled research paradigms.",
-  "RAG and generative retrieval.",
-];
+const phrases = {
+  MAS: "multi-agent systems.",
+  AI4S: "AI-enabled research paradigms.",
+  RAG: "RAG and generative retrieval.",
+} as const;
 
 export function PageMotion() {
   useEffect(() => {
@@ -21,36 +21,85 @@ export function PageMotion() {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (reducedMotion) {
-      target.textContent = phrases[0];
-      return;
-    }
-
-    let phraseIndex = 0;
-    let characterIndex = phrases[0].length;
-    let deleting = true;
+    let activeMode = "";
     let timer: ReturnType<typeof setTimeout>;
+    let phraseTween: gsap.core.Timeline | null = null;
+    let phraseVersion = 0;
 
-    const type = () => {
-      const phrase = phrases[phraseIndex];
-      characterIndex += deleting ? -1 : 1;
-      target.textContent = phrase.slice(0, characterIndex);
-
-      let delay = deleting ? 24 : 42;
-      if (!deleting && characterIndex === phrase.length) {
-        deleting = true;
-        delay = 2100;
-      } else if (deleting && characterIndex === 0) {
-        deleting = false;
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        delay = 320;
-      }
-
-      timer = setTimeout(type, delay);
+    const typeCharacters = (phrase: string, version: number) => {
+      clearTimeout(timer);
+      let characterIndex = 0;
+      target.textContent = "";
+      const type = () => {
+        if (version !== phraseVersion) return;
+        characterIndex += 1;
+        target.textContent = phrase.slice(0, characterIndex);
+        if (characterIndex < phrase.length) {
+          timer = setTimeout(type, 38);
+        }
+      };
+      timer = setTimeout(type, 90);
     };
 
-    timer = setTimeout(type, 1700);
-    return () => clearTimeout(timer);
+    const selectPhrase = (
+      mode: keyof typeof phrases,
+      options: { initial?: boolean } = {},
+    ) => {
+      if (!phrases[mode] || activeMode === mode) return;
+      activeMode = mode;
+      phraseVersion += 1;
+      const version = phraseVersion;
+      const phrase = phrases[mode];
+
+      clearTimeout(timer);
+      phraseTween?.kill();
+
+      if (reducedMotion || options.initial) {
+        target.textContent = phrase;
+        gsap.set(target, { autoAlpha: 1, y: 0 });
+        return;
+      }
+
+      phraseTween = gsap
+        .timeline()
+        .to(target, {
+          autoAlpha: 0,
+          y: -5,
+          duration: 0.24,
+          ease: "power2.in",
+        })
+        .call(() => typeCharacters(phrase, version))
+        .set(target, { y: 6 })
+        .to(target, {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.46,
+          ease: "power3.out",
+        });
+    };
+
+    const handleResearchFieldChange = (event: Event) => {
+      const mode = (event as CustomEvent<{ mode?: keyof typeof phrases }>).detail
+        ?.mode;
+      if (mode) selectPhrase(mode);
+    };
+
+    const initialMode =
+      (document.documentElement.dataset
+        .researchFocus as keyof typeof phrases) || "MAS";
+    selectPhrase(initialMode, { initial: true });
+    window.addEventListener("research-field-change", handleResearchFieldChange);
+
+    return () => {
+      phraseVersion += 1;
+      clearTimeout(timer);
+      phraseTween?.kill();
+      gsap.killTweensOf(target);
+      window.removeEventListener(
+        "research-field-change",
+        handleResearchFieldChange,
+      );
+    };
   }, []);
 
   useGSAP(() => {
@@ -121,10 +170,10 @@ export function PageMotion() {
       start: 0,
       end: "max",
       onUpdate: ({ progress }) => {
-      document.documentElement.style.setProperty(
-        "--scroll-progress",
-        `${progress}`,
-      );
+        document.documentElement.style.setProperty(
+          "--scroll-progress",
+          `${progress}`,
+        );
       },
     });
 

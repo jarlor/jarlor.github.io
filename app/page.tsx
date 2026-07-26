@@ -1,8 +1,12 @@
 import Image from "next/image";
 import { PageMotion } from "./components/PageMotion";
+import {
+  ResearchFieldSelector,
+  type ResearchArea,
+} from "./components/ResearchFieldSelector";
 import { ResearchTrace } from "./components/ResearchTrace";
 
-const researchAreas = [
+const researchAreas: ResearchArea[] = [
   {
     code: "MAS",
     title: "Multi-Agent Systems",
@@ -72,73 +76,79 @@ const selectedWorks = [
   },
 ];
 
+function Authors({ names }: { names: string }) {
+  const parts = names.split("Jiale Zhang");
+
+  return (
+    <>
+      {parts[0]}
+      <strong className="self-author">Jiale Zhang</strong>
+      {parts[1]}
+    </>
+  );
+}
+
 export default function Home() {
   return (
     <main>
-      <PageMotion />
-      <div className="scroll-meter" aria-hidden="true" />
+        <PageMotion />
+        <div className="scroll-meter" aria-hidden="true" />
 
-      <header className="site-header">
-        <a className="identity" href="#top" aria-label="Back to top">
-          <span className="identity-mark">JZ</span>
-          <span>
-            JIALE ZHANG
-            <small>JARLOR · AI RESEARCH</small>
-          </span>
-        </a>
+        <header className="site-header">
+          <nav className="site-nav" aria-label="Main navigation">
+            <a href="#research">Research</a>
+            <a href="#publications">Publications</a>
+            <a href="#about">About</a>
+          </nav>
 
-        <nav className="site-nav" aria-label="Main navigation">
-          <a href="#research">Research</a>
-          <a href="#publications">Publications</a>
-          <a href="#about">About</a>
-        </nav>
+          <a className="contact-link" href="#contact">
+            Contact <span aria-hidden="true">↗</span>
+          </a>
+        </header>
 
-        <a className="contact-link" href="#contact">
-          Contact <span aria-hidden="true">↗</span>
-        </a>
-      </header>
+        <section className="hero" id="top">
+          <ResearchTrace />
+          <div className="hero-main">
+            <p className="eyebrow">
+              Ph.D. Candidate in Computer Science / Fudan University
+            </p>
 
-      <section className="hero" id="top">
-        <ResearchTrace />
-        <div className="hero-main">
-          <p className="eyebrow">
-            Ph.D. Student in Computer Science / Fudan University
-          </p>
+            <h1 aria-label="Jiale Zhang">
+              <span>Jiale</span>
+              <span>Zhang.</span>
+            </h1>
 
-          <h1 aria-label="Jiale Zhang">
-            <span>Jiale</span>
-            <span>Zhang.</span>
-          </h1>
-
-          <p className="hero-thesis">
-            I study{" "}
-            <span className="typed-line" aria-live="polite">
-              <span
-                data-phrases="multi-agent systems.|AI-enabled research paradigms.|RAG and generative retrieval."
-              >
-                multi-agent systems.
+            <p className="hero-thesis">
+              I study{" "}
+              <span className="typed-line" aria-live="polite">
+                <span
+                  data-phrases="multi-agent systems.|AI-enabled research paradigms.|RAG and generative retrieval."
+                >
+                  multi-agent systems.
+                </span>
               </span>
-            </span>
-          </p>
+            </p>
 
-          <div className="hero-actions">
-            <a className="primary-button" href="#publications">
-              Publications
-              <span aria-hidden="true">↘</span>
-            </a>
-            <a
-              className="quiet-link"
-              href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Google Scholar ↗
-            </a>
+            <div className="hero-actions">
+              <a className="primary-button" href="#publications">
+                Publications
+                <span aria-hidden="true">↘</span>
+              </a>
+              <a
+                className="quiet-link"
+                href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Google Scholar ↗
+              </a>
+            </div>
           </div>
-        </div>
 
         <aside className="hero-profile" aria-label="Profile at a glance">
-          <div className="hero-profile-core">
+            <p className="hero-slogan">
+              Ethically aligned. <em>Probably.</em>
+            </p>
             <div className="hero-profile-head">
               <Image
                 src="/jiale-zhang.jpg"
@@ -146,6 +156,7 @@ export default function Home() {
                 width={54}
                 height={54}
                 priority
+                unoptimized
               />
               <div>
                 <strong>Jiale Zhang</strong>
@@ -161,7 +172,7 @@ export default function Home() {
             <dl>
               <div>
                 <dt>Position</dt>
-                <dd>Ph.D. Student</dd>
+                <dd>Ph.D. Candidate</dd>
               </div>
               <div>
                 <dt>Affiliation</dt>
@@ -175,9 +186,9 @@ export default function Home() {
 
             <div className="hero-profile-group">
               <span>Research focus</span>
-              <p>Multi-Agent Systems</p>
-              <p>AI for Science</p>
-              <p>RAG &amp; Generative Retrieval</p>
+              <p data-research-mode="MAS">Multi-Agent Systems</p>
+              <p data-research-mode="AI4S">AI for Science</p>
+              <p data-research-mode="RAG">RAG &amp; Generative Retrieval</p>
             </div>
 
             <div className="hero-profile-group hero-profile-work">
@@ -186,6 +197,7 @@ export default function Home() {
                 href="https://arxiv.org/abs/2506.17288"
                 target="_blank"
                 rel="noreferrer"
+                data-research-mode="RAG"
               >
                 SlimRAG <b>2025 ↗</b>
               </a>
@@ -193,6 +205,7 @@ export default function Home() {
                 href="https://aclanthology.org/2025.acl-demo.51/"
                 target="_blank"
                 rel="noreferrer"
+                data-research-mode="MAS"
               >
                 AI2Agent <b>ACL 2025 ↗</b>
               </a>
@@ -206,7 +219,6 @@ export default function Home() {
             >
               github.com/jarlor <span aria-hidden="true">↗</span>
             </a>
-          </div>
         </aside>
       </section>
 
@@ -218,8 +230,8 @@ export default function Home() {
 
         <div className="research-intro">
           <h2 data-reveal>
-            From individual models to
-            <em> connected research systems.</em>
+            <span>From individual models to</span>
+            <em>connected research systems.</em>
           </h2>
           <p data-reveal>
             Three strands of work, joined by one systems view: intelligence
@@ -228,46 +240,21 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="research-grid">
-          {researchAreas.map((area, index) => (
-            <article className="research-card" key={area.code} data-reveal>
-              <header>
-                <span className="area-number">0{index + 1}</span>
-                <span className="area-code">{area.code}</span>
-              </header>
-              <h3>{area.title}</h3>
-              <p>{area.description}</p>
-              <ul>
-                {area.questions.map((question) => (
-                  <li key={question}>{question}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-
-        <aside className="position-note" data-reveal>
-          <span className="position-note-label">A note on AI4S</span>
-          <p>
-            Here, “AI for Science” means using AI to transform the general
-            methodology and infrastructure of research, not specializing in a
-            single downstream field such as computational chemistry.
-          </p>
-        </aside>
+        <ResearchFieldSelector areas={researchAreas} />
       </section>
 
       <section className="publications" id="publications">
         <div className="section-shell">
           <div className="section-label section-label-dark" data-reveal>
             <span>Selected publications</span>
-            <span>论文与项目</span>
+            <span>论文</span>
           </div>
 
           <div className="publication-heading" data-reveal>
-            <h2>Research, recorded.</h2>
+            <h2>Publications.</h2>
             <p>
-              Papers, preprints, and working systems across retrieval and
-              autonomous agents.
+              Papers and research systems across retrieval, generative
+              knowledge, and autonomous agents.
             </p>
           </div>
 
@@ -279,6 +266,9 @@ export default function Home() {
                 href={work.href}
                 target="_blank"
                 rel="noreferrer"
+                data-research-mode={
+                  work.area.includes("AGENT SYSTEMS") ? "MAS" : "RAG"
+                }
                 data-reveal
               >
                 <span className="publication-index">0{index + 1}</span>
@@ -289,7 +279,9 @@ export default function Home() {
                 </div>
                 <div className="publication-main">
                   <h3>{work.title}</h3>
-                  <p>{work.authors}</p>
+                  <p>
+                    <Authors names={work.authors} />
+                  </p>
                 </div>
                 <span className="publication-venue">{work.venue}</span>
                 <span className="publication-arrow" aria-hidden="true">
@@ -326,6 +318,7 @@ export default function Home() {
                 alt="Jarlor, Jiale Zhang's illustrated GitHub avatar"
                 width={460}
                 height={460}
+                unoptimized
               />
               <span>JARLOR / GITHUB IDENTITY</span>
             </div>
@@ -336,7 +329,7 @@ export default function Home() {
               </div>
               <div>
                 <dt>STATUS</dt>
-                <dd>Ph.D. Student</dd>
+                <dd>Ph.D. Candidate</dd>
               </div>
               <div>
                 <dt>FIELD</dt>
@@ -346,10 +339,17 @@ export default function Home() {
           </aside>
 
           <div className="about-copy" data-reveal>
+            <div className="about-heading">
+              <h2>Jiale Zhang</h2>
+              <p>
+                Ph.D. Candidate in Computer Science
+                <span>Fudan University · Shanghai</span>
+              </p>
+            </div>
             <p className="about-lead">
-              I&apos;m <em>Jiale Zhang</em>, Jarlor online, a doctoral researcher
-              at Fudan University studying how AI systems collaborate, connect
-              to knowledge, and become part of the scientific process.
+              Known online as <em>Jarlor</em>, I study how AI systems
+              collaborate, connect to external knowledge, and support the
+              scientific process.
             </p>
             <div className="about-columns">
               <p>
@@ -368,7 +368,7 @@ export default function Home() {
               <div>
                 <span>PRESENT</span>
                 <p>
-                  <strong>Ph.D. in Computer Science</strong>
+                  <strong>Ph.D. Candidate in Computer Science</strong>
                   Fudan University · Shanghai
                 </p>
               </div>
@@ -431,7 +431,7 @@ export default function Home() {
           <span>© 2026 Jiale Zhang</span>
           <span>Fudan University · Shanghai</span>
         </footer>
-      </section>
+        </section>
     </main>
   );
 }

@@ -19,9 +19,9 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const title = "Jiale Zhang - AI Researcher at Fudan University";
+const title = "Jiale Zhang - Ph.D. Candidate at Fudan University";
 const description =
-  "Personal research homepage of a computer science Ph.D. student at Fudan University, working on multi-agent systems, AI for Science, RAG, and generative retrieval.";
+  "Personal research homepage of a computer science Ph.D. candidate at Fudan University, working on multi-agent systems, AI for Science, RAG, and generative retrieval.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://jarlor.github.io"),

@@ -1,59 +1,179 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type ModeId = "MAS" | "AI4S" | "RAG";
 
-type Particle = {
+type FieldNode = {
   x: number;
   y: number;
   vx: number;
   vy: number;
   radius: number;
   phase: number;
-  orbit: number;
   band: number;
   energy: number;
 };
 
-type PointerState = {
+type Ripple = {
   x: number;
   y: number;
-  previousX: number;
-  previousY: number;
-  active: boolean;
-  pulse: number;
+  radius: number;
+  life: number;
 };
 
-const modes: Array<{
-  id: ModeId;
-  label: string;
-  instruction: string;
-}> = [
+const modes: ModeId[] = ["MAS", "AI4S", "RAG"];
+
+const palettes: Record<
+  ModeId,
   {
-    id: "MAS",
-    label: "Agent field",
-    instruction: "Move to coordinate. Click to introduce new agents.",
+    blue: string;
+    blueSoft: string;
+    bluePale: string;
+    line: string;
+    rgb: [number, number, number];
+  }
+> = {
+  MAS: {
+    blue: "#2d6f92",
+    blueSoft: "#75b9db",
+    bluePale: "#b7e2f6",
+    line: "rgba(11, 18, 24, 0.15)",
+    rgb: [45, 111, 146],
   },
-  {
-    id: "AI4S",
-    label: "Discovery loop",
-    instruction: "Move to reshape inquiry. Click to seed a question.",
+  AI4S: {
+    blue: "#287c78",
+    blueSoft: "#79c9c0",
+    bluePale: "#c7e9e3",
+    line: "rgba(40, 124, 120, 0.152)",
+    rgb: [40, 124, 120],
   },
-  {
-    id: "RAG",
-    label: "Retrieval field",
-    instruction: "Move the query. Click to retrieve new evidence.",
+  RAG: {
+    blue: "#4d669b",
+    blueSoft: "#9eb5e2",
+    bluePale: "#d8e1f5",
+    line: "rgba(77, 102, 155, 0.152)",
+    rgb: [77, 102, 155],
   },
-];
+};
 
 const clamp = (value: number, minimum: number, maximum: number) =>
   Math.min(maximum, Math.max(minimum, value));
 
 export function ResearchTrace() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const transitionCanvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number | null>(null);
+  const manualPauseRef = useRef(0);
+  const modeIndexRef = useRef(0);
+  const hasTransitionedRef = useRef(false);
   const [modeIndex, setModeIndex] = useState(0);
+
+  const captureCurrentField = useCallback(() => {
+    const liveCanvas = canvasRef.current;
+    const transitionCanvas = transitionCanvasRef.current;
+    const transitionContext = transitionCanvas?.getContext("2d");
+    if (!liveCanvas || !transitionCanvas || !transitionContext) return;
+
+    transitionCanvas.width = liveCanvas.width;
+    transitionCanvas.height = liveCanvas.height;
+    transitionContext.setTransform(1, 0, 0, 1, 0, 0);
+    transitionContext.clearRect(
+      0,
+      0,
+      transitionCanvas.width,
+      transitionCanvas.height,
+    );
+    transitionContext.drawImage(liveCanvas, 0, 0);
+    gsap.killTweensOf(transitionCanvas);
+    gsap.set(transitionCanvas, { opacity: 1 });
+  }, []);
+
+  const transitionToMode = useCallback(
+    (nextIndex: number) => {
+      if (nextIndex === modeIndexRef.current) return;
+      captureCurrentField();
+      modeIndexRef.current = nextIndex;
+      setModeIndex(nextIndex);
+    },
+    [captureCurrentField],
+  );
+
+  useEffect(() => {
+    const handleFieldSelect = (event: Event) => {
+      const mode = (event as CustomEvent<{ mode?: ModeId }>).detail?.mode;
+      if (!mode) return;
+      const nextIndex = modes.indexOf(mode);
+      if (nextIndex >= 0) {
+        manualPauseRef.current = 1;
+        transitionToMode(nextIndex);
+      }
+    };
+
+    const interval = window.setInterval(() => {
+      if (manualPauseRef.current > 0) {
+        manualPauseRef.current -= 1;
+        return;
+      }
+      transitionToMode((modeIndexRef.current + 1) % modes.length);
+    }, 4800);
+
+    window.addEventListener("research-field-select", handleFieldSelect);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("research-field-select", handleFieldSelect);
+    };
+  }, [transitionToMode]);
+
+  useEffect(() => {
+    const mode = modes[modeIndex];
+    const palette = palettes[mode];
+    const root = document.documentElement;
+    const relatedElements = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-research-mode]"),
+    );
+
+    root.dataset.researchFocus = mode;
+    const paletteVars = {
+      "--blue": palette.blue,
+      "--blue-soft": palette.blueSoft,
+      "--blue-pale": palette.bluePale,
+      "--field-accent": palette.blue,
+      "--field-accent-soft": palette.blueSoft,
+      "--field-rgb": palette.rgb.join(" "),
+      "--line": palette.line,
+    };
+
+    if (!hasTransitionedRef.current) {
+      gsap.set(root, paletteVars);
+      hasTransitionedRef.current = true;
+    } else {
+      gsap.to(root, {
+        ...paletteVars,
+        duration: 1.05,
+        ease: "power3.inOut",
+        overwrite: "auto",
+      });
+    }
+
+    relatedElements.forEach((element) => {
+      element.classList.toggle(
+        "is-canvas-related",
+        element.dataset.researchMode === mode,
+      );
+    });
+    window.dispatchEvent(
+      new CustomEvent("research-field-change", { detail: { mode } }),
+    );
+
+    return () => {
+      gsap.killTweensOf(root);
+      relatedElements.forEach((element) =>
+        element.classList.remove("is-canvas-related"),
+      );
+    };
+  }, [modeIndex]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -64,77 +184,80 @@ export function ResearchTrace() {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const mode = modes[modeIndex].id;
-    const pointer: PointerState = {
+    const mode = modes[modeIndex];
+    const palette = palettes[mode];
+    const accentRgb = palette.rgb.join(", ");
+    const accentDarkRgb = palette.rgb
+      .map((channel) => Math.max(0, channel - 18))
+      .join(", ");
+    const accentLightRgb = palette.rgb
+      .map((channel) => Math.min(255, channel + 24))
+      .join(", ");
+    const pointer = {
       x: 0,
       y: 0,
-      previousX: 0,
-      previousY: 0,
       active: false,
-      pulse: 0,
     };
 
     let width = 0;
     let height = 0;
-    let particles: Particle[] = [];
-    let startTime = performance.now();
-    let lastTime = startTime;
-    let queryPulse = 0;
-    let randomSeed = 97 + modeIndex * 131;
+    let nodes: FieldNode[] = [];
+    let ripples: Ripple[] = [];
+    let seed = 131 + modeIndex * 179;
+    let lastTime = performance.now();
+    let startTime = lastTime;
 
     const random = () => {
-      randomSeed = (randomSeed * 16807) % 2147483647;
-      return (randomSeed - 1) / 2147483646;
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
     };
 
-    const makeParticle = (x?: number, y?: number): Particle => ({
-      x: x ?? width * (0.27 + random() * 0.68),
-      y: y ?? height * (0.12 + random() * 0.76),
-      vx: (random() - 0.5) * 0.35,
-      vy: (random() - 0.5) * 0.35,
-      radius: 1.3 + random() * 2.4,
+    const makeNode = (): FieldNode => ({
+      x: width * (0.32 + random() * 0.65),
+      y: height * (0.13 + random() * 0.74),
+      vx: (random() - 0.5) * 0.34,
+      vy: (random() - 0.5) * 0.34,
+      radius: 1.1 + random() * 2,
       phase: random() * Math.PI * 2,
-      orbit: 0.12 + random() * 0.37,
       band: Math.floor(random() * 4),
       energy: 0,
     });
 
     const initialise = () => {
-      randomSeed = 97 + modeIndex * 131;
-      const count = width < 700 ? 24 : mode === "RAG" ? 46 : 34;
-      particles = Array.from({ length: count }, () => makeParticle());
-
-      if (mode === "AI4S") {
-        const centerX = width * 0.69;
-        const centerY = height * 0.46;
-        particles.forEach((particle, index) => {
-          const angle = (index / particles.length) * Math.PI * 2;
-          const orbit = Math.min(width, height) * (0.16 + particle.band * 0.032);
-          particle.x = centerX + Math.cos(angle) * orbit;
-          particle.y = centerY + Math.sin(angle) * orbit * 0.62;
-        });
-      }
+      seed = 131 + modeIndex * 179;
+      const count = width < 700 ? 22 : mode === "RAG" ? 42 : 32;
+      nodes = Array.from({ length: count }, makeNode);
+      ripples = [
+        {
+          x: width * 0.7,
+          y: height * 0.46,
+          radius: 10,
+          life: 0.58,
+        },
+      ];
+      startTime = performance.now();
+      lastTime = startTime;
     };
 
     const drawSurface = () => {
       const wash = context.createRadialGradient(
-        width * 0.7,
-        height * 0.42,
+        width * 0.72,
+        height * 0.44,
         0,
-        width * 0.7,
-        height * 0.42,
-        Math.max(width, height) * 0.58,
+        width * 0.72,
+        height * 0.44,
+        Math.max(width, height) * 0.6,
       );
-      wash.addColorStop(0, "rgba(92, 164, 198, 0.105)");
-      wash.addColorStop(0.46, "rgba(92, 164, 198, 0.028)");
-      wash.addColorStop(1, "rgba(92, 164, 198, 0)");
+      wash.addColorStop(0, `rgba(${accentLightRgb}, 0.135)`);
+      wash.addColorStop(0.5, `rgba(${accentLightRgb}, 0.035)`);
+      wash.addColorStop(1, `rgba(${accentLightRgb}, 0)`);
       context.fillStyle = wash;
       context.fillRect(0, 0, width, height);
 
       context.save();
-      context.strokeStyle = "rgba(13, 34, 47, 0.026)";
-      context.lineWidth = 0.7;
-      const spacing = width < 700 ? 44 : 62;
+      context.strokeStyle = "rgba(13, 34, 47, 0.025)";
+      context.lineWidth = 0.65;
+      const spacing = width < 700 ? 46 : 64;
       for (let x = spacing; x < width; x += spacing) {
         context.beginPath();
         context.moveTo(x, 0);
@@ -150,272 +273,199 @@ export function ResearchTrace() {
       context.restore();
     };
 
-    const drawPointer = () => {
-      if (!pointer.active) return;
-      const radius = 13 + pointer.pulse * 22;
-      context.save();
-      context.strokeStyle = `rgba(28, 105, 143, ${0.4 - pointer.pulse * 0.22})`;
-      context.lineWidth = 0.8;
-      context.beginPath();
-      context.arc(pointer.x, pointer.y, radius, 0, Math.PI * 2);
-      context.stroke();
-      context.beginPath();
-      context.moveTo(pointer.x - 20, pointer.y);
-      context.lineTo(pointer.x - 8, pointer.y);
-      context.moveTo(pointer.x + 8, pointer.y);
-      context.lineTo(pointer.x + 20, pointer.y);
-      context.moveTo(pointer.x, pointer.y - 20);
-      context.lineTo(pointer.x, pointer.y - 8);
-      context.moveTo(pointer.x, pointer.y + 8);
-      context.lineTo(pointer.x, pointer.y + 20);
-      context.stroke();
-      context.restore();
-    };
-
-    const drawNode = (
-      particle: Particle,
-      opacity: number,
-      accent = false,
-    ) => {
-      context.save();
-      context.translate(particle.x, particle.y);
+    const drawNode = (node: FieldNode, opacity: number, accent = false) => {
       context.fillStyle = accent
-        ? `rgba(22, 94, 132, ${opacity})`
-        : `rgba(53, 116, 147, ${opacity})`;
+        ? `rgba(${accentDarkRgb}, ${opacity})`
+        : `rgba(${accentRgb}, ${opacity})`;
       context.beginPath();
-      context.arc(0, 0, particle.radius, 0, Math.PI * 2);
+      context.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
       context.fill();
 
-      if (particle.energy > 0.18) {
-        context.strokeStyle = `rgba(45, 120, 158, ${particle.energy * 0.28})`;
-        context.lineWidth = 0.7;
+      if (node.energy > 0.34) {
+        context.strokeStyle = `rgba(${accentLightRgb}, ${node.energy * 0.16})`;
+        context.lineWidth = 0.65;
         context.beginPath();
-        context.arc(0, 0, 5 + particle.energy * 8, 0, Math.PI * 2);
+        context.arc(node.x, node.y, 4 + node.energy * 7, 0, Math.PI * 2);
         context.stroke();
       }
-      context.restore();
+    };
+
+    const drawRipples = (delta: number) => {
+      ripples.forEach((ripple) => {
+        ripple.radius += 2.1 * delta;
+        ripple.life -= 0.012 * delta;
+        context.strokeStyle = `rgba(${accentRgb}, ${Math.max(0, ripple.life) * 0.22})`;
+        context.lineWidth = 0.7;
+        context.beginPath();
+        context.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+        context.stroke();
+      });
+      ripples = ripples.filter((ripple) => ripple.life > 0);
+    };
+
+    const influenceByPointer = (node: FieldNode, delta: number) => {
+      if (!pointer.active) return;
+      const dx = pointer.x - node.x;
+      const dy = pointer.y - node.y;
+      const distance = Math.max(24, Math.hypot(dx, dy));
+      const influence = Math.max(0, 1 - distance / 300);
+      node.vx += (dx / distance) * influence * 0.007 * delta;
+      node.vy += (dy / distance) * influence * 0.007 * delta;
+      node.energy = Math.max(node.energy, influence * 0.72);
     };
 
     const updateMAS = (delta: number) => {
-      const interactionRadius = width < 700 ? 82 : 118;
+      const relationRadius = width < 700 ? 92 : 128;
 
-      for (let i = 0; i < particles.length; i += 1) {
-        const particle = particles[i];
+      nodes.forEach((node, index) => {
         let centerX = 0;
         let centerY = 0;
-        let alignmentX = 0;
-        let alignmentY = 0;
-        let separationX = 0;
-        let separationY = 0;
         let neighbours = 0;
 
-        for (let j = 0; j < particles.length; j += 1) {
-          if (i === j) continue;
-          const other = particles[j];
-          const dx = other.x - particle.x;
-          const dy = other.y - particle.y;
-          const distance = Math.hypot(dx, dy);
-          if (distance < interactionRadius) {
+        nodes.forEach((other, otherIndex) => {
+          if (index === otherIndex) return;
+          const distance = Math.hypot(other.x - node.x, other.y - node.y);
+          if (distance < relationRadius) {
             centerX += other.x;
             centerY += other.y;
-            alignmentX += other.vx;
-            alignmentY += other.vy;
             neighbours += 1;
-            if (distance < 31 && distance > 0) {
-              separationX -= dx / distance;
-              separationY -= dy / distance;
-            }
           }
-        }
+        });
 
         if (neighbours > 0) {
-          particle.vx +=
-            ((centerX / neighbours - particle.x) * 0.00016 +
-              (alignmentX / neighbours - particle.vx) * 0.009 +
-              separationX * 0.016) *
-            delta;
-          particle.vy +=
-            ((centerY / neighbours - particle.y) * 0.00016 +
-              (alignmentY / neighbours - particle.vy) * 0.009 +
-              separationY * 0.016) *
-            delta;
+          node.vx +=
+            (centerX / neighbours - node.x) * 0.00012 * delta;
+          node.vy +=
+            (centerY / neighbours - node.y) * 0.00012 * delta;
         }
+        influenceByPointer(node, delta);
 
-        if (pointer.active) {
-          const dx = pointer.x - particle.x;
-          const dy = pointer.y - particle.y;
-          const distance = Math.max(18, Math.hypot(dx, dy));
-          const influence = Math.max(0, 1 - distance / 240);
-          particle.vx += (dx / distance) * influence * 0.012 * delta;
-          particle.vy += (dy / distance) * influence * 0.012 * delta;
-          particle.energy = Math.max(particle.energy, influence);
+        const speed = Math.hypot(node.vx, node.vy);
+        if (speed > 0.9) {
+          node.vx = (node.vx / speed) * 0.9;
+          node.vy = (node.vy / speed) * 0.9;
         }
+        node.x += node.vx * delta;
+        node.y += node.vy * delta;
+        node.energy *= 0.97;
 
-        const speed = Math.hypot(particle.vx, particle.vy);
-        if (speed > 1.05) {
-          particle.vx = (particle.vx / speed) * 1.05;
-          particle.vy = (particle.vy / speed) * 1.05;
-        }
-        particle.x += particle.vx * delta;
-        particle.y += particle.vy * delta;
-        particle.energy *= 0.968;
+        if (node.x < width * 0.25 || node.x > width - 22) node.vx *= -1;
+        if (node.y < 88 || node.y > height - 54) node.vy *= -1;
+        node.x = clamp(node.x, width * 0.25, width - 22);
+        node.y = clamp(node.y, 88, height - 54);
+      });
 
-        if (particle.x < width * 0.18 || particle.x > width - 24) {
-          particle.vx *= -1;
-          particle.x = clamp(particle.x, width * 0.18, width - 24);
-        }
-        if (particle.y < 90 || particle.y > height - 42) {
-          particle.vy *= -1;
-          particle.y = clamp(particle.y, 90, height - 42);
-        }
-      }
-
-      for (let i = 0; i < particles.length; i += 1) {
-        for (let j = i + 1; j < particles.length; j += 1) {
-          const first = particles[i];
-          const second = particles[j];
+      nodes.forEach((first, index) => {
+        nodes.slice(index + 1).forEach((second) => {
           const distance = Math.hypot(first.x - second.x, first.y - second.y);
-          if (distance < interactionRadius) {
-            const opacity = (1 - distance / interactionRadius) * 0.16;
-            context.strokeStyle = `rgba(37, 102, 136, ${opacity})`;
-            context.lineWidth = 0.65;
-            context.beginPath();
-            context.moveTo(first.x, first.y);
-            context.lineTo(second.x, second.y);
-            context.stroke();
-          }
-        }
-      }
+          if (distance >= relationRadius) return;
+          context.strokeStyle = `rgba(${accentDarkRgb}, ${(1 - distance / relationRadius) * 0.14})`;
+          context.lineWidth = 0.6;
+          context.beginPath();
+          context.moveTo(first.x, first.y);
+          context.lineTo(second.x, second.y);
+          context.stroke();
+        });
+      });
 
-      particles.forEach((particle, index) =>
-        drawNode(particle, 0.26 + particle.energy * 0.64, index % 7 === 0),
+      nodes.forEach((node, index) =>
+        drawNode(node, 0.24 + node.energy * 0.55, index % 7 === 0),
       );
     };
 
     const updateAI4S = (elapsed: number, delta: number) => {
-      const pointerShiftX = pointer.active ? (pointer.x - width * 0.66) * 0.08 : 0;
-      const pointerShiftY = pointer.active ? (pointer.y - height * 0.46) * 0.06 : 0;
-      const centerX = width * 0.69 + pointerShiftX;
-      const centerY = height * 0.46 + pointerShiftY;
-      const baseOrbit = Math.min(width, height);
+      const pointerX = pointer.active ? (pointer.x - width * 0.71) * 0.04 : 0;
+      const pointerY = pointer.active ? (pointer.y - height * 0.46) * 0.035 : 0;
+      const centerX = width * 0.71 + pointerX;
+      const centerY = height * 0.46 + pointerY;
+      const base = Math.min(width, height);
 
-      context.save();
-      context.strokeStyle = "rgba(38, 108, 143, 0.1)";
+      context.strokeStyle = `rgba(${accentRgb}, 0.09)`;
       context.lineWidth = 0.65;
       for (let band = 0; band < 4; band += 1) {
-        const radius = baseOrbit * (0.145 + band * 0.038);
+        const radius = base * (0.13 + band * 0.045);
         context.beginPath();
-        context.ellipse(centerX, centerY, radius, radius * 0.62, -0.16, 0, Math.PI * 2);
+        context.ellipse(
+          centerX,
+          centerY,
+          radius,
+          radius * 0.61,
+          -0.14,
+          0,
+          Math.PI * 2,
+        );
         context.stroke();
       }
-      context.restore();
 
-      particles.forEach((particle, index) => {
-        const direction = particle.band % 2 === 0 ? 1 : -1;
-        const angle =
-          particle.phase + elapsed * (0.08 + particle.orbit * 0.15) * direction;
-        const radius = baseOrbit * (0.145 + particle.band * 0.038);
-        const targetX =
-          centerX + Math.cos(angle) * radius + Math.sin(angle * 3) * 8;
-        const targetY =
-          centerY + Math.sin(angle) * radius * 0.62 + Math.cos(angle * 2) * 5;
-        particle.x += (targetX - particle.x) * 0.025 * delta;
-        particle.y += (targetY - particle.y) * 0.025 * delta;
+      nodes.forEach((node, index) => {
+        const direction = node.band % 2 === 0 ? 1 : -1;
+        const angle = node.phase + elapsed * (0.12 + node.band * 0.025) * direction;
+        const radius = base * (0.13 + node.band * 0.045);
+        const targetX = centerX + Math.cos(angle) * radius;
+        const targetY = centerY + Math.sin(angle) * radius * 0.61;
+        node.x += (targetX - node.x) * 0.035 * delta;
+        node.y += (targetY - node.y) * 0.035 * delta;
 
-        const next = particles[(index + 1) % particles.length];
-        if (next.band === particle.band) {
-          context.strokeStyle = `rgba(43, 111, 145, ${0.035 + particle.energy * 0.16})`;
-          context.lineWidth = 0.6;
-          context.beginPath();
-          context.moveTo(particle.x, particle.y);
-          context.lineTo(next.x, next.y);
-          context.stroke();
-        }
-
-        const pulseDistance = Math.abs(
-          ((angle + Math.PI * 2) % (Math.PI * 2)) - queryPulse,
-        );
-        particle.energy = Math.max(
-          particle.energy * 0.97,
-          Math.max(0, 1 - pulseDistance * 2.4),
-        );
-        drawNode(particle, 0.24 + particle.energy * 0.7, index % 9 === 0);
+        const phase = (elapsed * 0.42 + index / nodes.length) % 1;
+        node.energy = Math.max(node.energy * 0.97, phase > 0.9 ? 1 - phase : 0);
+        drawNode(node, 0.22 + node.energy * 0.58, index % 8 === 0);
       });
-
-      queryPulse = (queryPulse + 0.006 * delta) % (Math.PI * 2);
     };
 
     const updateRAG = (elapsed: number, delta: number) => {
-      const queryX = pointer.active ? pointer.x : width * 0.48;
-      const queryY = pointer.active ? pointer.y : height * 0.48;
-      const synthesisX = width * 0.82;
-      const synthesisY = height * 0.48;
-      const retrievalCycle = (elapsed * 0.34 + queryPulse) % 1;
+      const anchorX =
+        width * 0.56 + (pointer.active ? (pointer.x - width * 0.56) * 0.16 : 0);
+      const anchorY =
+        height * 0.47 + (pointer.active ? (pointer.y - height * 0.47) * 0.13 : 0);
+      const synthesisX = width * 0.84;
+      const synthesisY = height * 0.47;
 
-      particles.forEach((particle, index) => {
-        const driftX = Math.cos(elapsed * 0.12 + particle.phase) * 0.08;
-        const driftY = Math.sin(elapsed * 0.15 + particle.phase) * 0.07;
-        particle.x += (particle.vx * 0.18 + driftX) * delta;
-        particle.y += (particle.vy * 0.18 + driftY) * delta;
-        if (particle.x < width * 0.3 || particle.x > width - 30) particle.vx *= -1;
-        if (particle.y < 100 || particle.y > height - 46) particle.vy *= -1;
+      nodes.forEach((node, index) => {
+        node.x += (node.vx * 0.2 + Math.cos(elapsed + node.phase) * 0.04) * delta;
+        node.y += (node.vy * 0.2 + Math.sin(elapsed + node.phase) * 0.04) * delta;
+        if (node.x < width * 0.34 || node.x > width - 24) node.vx *= -1;
+        if (node.y < 96 || node.y > height - 54) node.vy *= -1;
 
-        const distance = Math.hypot(particle.x - queryX, particle.y - queryY);
-        const score =
-          Math.max(0, 1 - distance / Math.max(width * 0.46, 320)) *
-          (0.72 + ((index * 17) % 7) * 0.04);
-        const selected = score > 0.56;
-        particle.energy +=
-          ((selected ? score : 0) - particle.energy) * 0.045 * delta;
+        const distance = Math.hypot(node.x - anchorX, node.y - anchorY);
+        const score = Math.max(0, 1 - distance / Math.max(width * 0.42, 300));
+        const selected = score > 0.55;
+        node.energy += ((selected ? score : 0) - node.energy) * 0.04 * delta;
 
         if (selected) {
-          context.strokeStyle = `rgba(35, 105, 142, ${particle.energy * 0.18})`;
-          context.lineWidth = 0.65;
+          context.strokeStyle = `rgba(${accentDarkRgb}, ${node.energy * 0.16})`;
+          context.lineWidth = 0.6;
           context.beginPath();
-          context.moveTo(queryX, queryY);
-          context.lineTo(particle.x, particle.y);
+          context.moveTo(anchorX, anchorY);
+          context.lineTo(node.x, node.y);
+          context.lineTo(synthesisX, synthesisY);
           context.stroke();
 
-          const travel = (retrievalCycle + index * 0.117) % 1;
-          const firstX = queryX + (particle.x - queryX) * Math.min(1, travel * 1.8);
-          const firstY = queryY + (particle.y - queryY) * Math.min(1, travel * 1.8);
-          const secondProgress = Math.max(0, (travel - 0.55) / 0.45);
+          const travel = (elapsed * 0.18 + index * 0.13) % 1;
           const streamX =
-            secondProgress > 0
-              ? particle.x + (synthesisX - particle.x) * secondProgress
-              : firstX;
+            travel < 0.5
+              ? anchorX + (node.x - anchorX) * travel * 2
+              : node.x + (synthesisX - node.x) * (travel - 0.5) * 2;
           const streamY =
-            secondProgress > 0
-              ? particle.y + (synthesisY - particle.y) * secondProgress
-              : firstY;
-          context.fillStyle = `rgba(27, 100, 139, ${0.45 + particle.energy * 0.45})`;
+            travel < 0.5
+              ? anchorY + (node.y - anchorY) * travel * 2
+              : node.y + (synthesisY - node.y) * (travel - 0.5) * 2;
+          context.fillStyle = `rgba(${accentDarkRgb}, 0.52)`;
           context.beginPath();
-          context.arc(streamX, streamY, 1.6, 0, Math.PI * 2);
+          context.arc(streamX, streamY, 1.4, 0, Math.PI * 2);
           context.fill();
         }
 
-        drawNode(particle, 0.12 + particle.energy * 0.72, selected);
+        drawNode(node, 0.12 + node.energy * 0.62, selected);
       });
 
-      context.save();
-      context.strokeStyle = "rgba(30, 105, 144, 0.48)";
-      context.lineWidth = 0.85;
+      context.fillStyle = `rgba(${accentDarkRgb}, 0.6)`;
       context.beginPath();
-      context.arc(queryX, queryY, 9 + retrievalCycle * 16, 0, Math.PI * 2);
-      context.stroke();
-      context.fillStyle = "rgba(24, 91, 128, 0.75)";
-      context.beginPath();
-      context.arc(synthesisX, synthesisY, 3.2, 0, Math.PI * 2);
+      context.arc(synthesisX, synthesisY, 2.5, 0, Math.PI * 2);
       context.fill();
-      context.strokeStyle = "rgba(30, 105, 144, 0.17)";
-      context.beginPath();
-      context.arc(synthesisX, synthesisY, 16, 0, Math.PI * 2);
-      context.stroke();
-      context.restore();
     };
 
     const draw = (now: number) => {
-      const delta = clamp((now - lastTime) / 16.67, 0.25, 2.4);
+      const delta = clamp((now - lastTime) / 16.67, 0.3, 2.2);
       const elapsed = (now - startTime) / 1000;
       lastTime = now;
       context.clearRect(0, 0, width, height);
@@ -424,13 +474,9 @@ export function ResearchTrace() {
       if (mode === "MAS") updateMAS(delta);
       if (mode === "AI4S") updateAI4S(elapsed, delta);
       if (mode === "RAG") updateRAG(elapsed, delta);
+      drawRipples(delta);
 
-      pointer.pulse *= 0.94;
-      drawPointer();
-
-      if (!reducedMotion) {
-        frameRef.current = requestAnimationFrame(draw);
-      }
+      if (!reducedMotion) frameRef.current = requestAnimationFrame(draw);
     };
 
     const resize = () => {
@@ -442,15 +488,11 @@ export function ResearchTrace() {
       canvas.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       initialise();
-      startTime = performance.now();
-      lastTime = startTime;
-      if (reducedMotion) draw(startTime);
+      if (reducedMotion) draw(performance.now());
     };
 
     const updatePointer = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      pointer.previousX = pointer.x;
-      pointer.previousY = pointer.y;
       pointer.x = event.clientX - rect.left;
       pointer.y = event.clientY - rect.top;
       pointer.active =
@@ -463,43 +505,29 @@ export function ResearchTrace() {
 
     const leavePointer = () => {
       pointer.active = false;
-      if (reducedMotion) draw(performance.now());
     };
 
-    const seedInteraction = (event: PointerEvent) => {
+    const pulseField = (event: PointerEvent) => {
       const target = event.target as HTMLElement;
       if (target.closest("a, button")) return;
       updatePointer(event);
-      pointer.pulse = 1;
-
-      if (mode === "MAS") {
-        const additions = Array.from({ length: 7 }, (_, index) => {
-          const particle = makeParticle(pointer.x, pointer.y);
-          const angle = (index / 7) * Math.PI * 2;
-          particle.vx = Math.cos(angle) * (0.35 + random() * 0.55);
-          particle.vy = Math.sin(angle) * (0.35 + random() * 0.55);
-          particle.energy = 1;
-          return particle;
-        });
-        particles.push(...additions);
-        if (particles.length > 54) particles.splice(0, 7);
-      }
-
-      if (mode === "AI4S") {
-        queryPulse = 0;
-        particles.forEach((particle) => {
-          particle.phase += (random() - 0.5) * 0.7;
-          particle.energy = 1;
-        });
-      }
-
-      if (mode === "RAG") {
-        queryPulse = 1 - ((performance.now() - startTime) / 1000) * 0.34;
-        particles.forEach((particle) => {
-          particle.energy = 0;
-        });
-      }
-
+      ripples.push({
+        x: pointer.x,
+        y: pointer.y,
+        radius: 8,
+        life: 0.8,
+      });
+      nodes.forEach((node) => {
+        const distance = Math.max(
+          30,
+          Math.hypot(node.x - pointer.x, node.y - pointer.y),
+        );
+        if (distance > 260) return;
+        const force = (1 - distance / 260) * 0.52;
+        node.vx += ((node.x - pointer.x) / distance) * force;
+        node.vy += ((node.y - pointer.y) / distance) * force;
+        node.energy = Math.max(node.energy, force);
+      });
       if (reducedMotion) draw(performance.now());
     };
 
@@ -507,7 +535,7 @@ export function ResearchTrace() {
     resizeObserver.observe(canvas);
     hero.addEventListener("pointermove", updatePointer, { passive: true });
     hero.addEventListener("pointerleave", leavePointer);
-    hero.addEventListener("pointerdown", seedInteraction);
+    hero.addEventListener("pointerdown", pulseField);
     resize();
     draw(startTime);
 
@@ -515,37 +543,57 @@ export function ResearchTrace() {
       resizeObserver.disconnect();
       hero.removeEventListener("pointermove", updatePointer);
       hero.removeEventListener("pointerleave", leavePointer);
-      hero.removeEventListener("pointerdown", seedInteraction);
+      hero.removeEventListener("pointerdown", pulseField);
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
   }, [modeIndex]);
 
-  const mode = modes[modeIndex];
+  useEffect(() => {
+    const liveCanvas = canvasRef.current;
+    const transitionCanvas = transitionCanvasRef.current;
+    if (!liveCanvas || !transitionCanvas) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    gsap.killTweensOf([liveCanvas, transitionCanvas]);
+    if (reducedMotion || !transitionCanvas.width) {
+      gsap.set(liveCanvas, { opacity: 1 });
+      gsap.set(transitionCanvas, { opacity: 0 });
+      return;
+    }
+
+    gsap.fromTo(
+      liveCanvas,
+      { opacity: 0 },
+      {
+        opacity: 1,
+        duration: 1.05,
+        ease: "power3.inOut",
+        overwrite: true,
+      },
+    );
+    gsap.to(transitionCanvas, {
+      opacity: 0,
+      duration: 1.05,
+      ease: "power3.inOut",
+      overwrite: true,
+    });
+  }, [modeIndex]);
 
   return (
     <div className="research-trace">
-      <canvas ref={canvasRef} aria-hidden="true" />
-      <div className="trace-interface">
-        <div className="trace-modes" role="tablist" aria-label="Canvas research mode">
-          {modes.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              className={index === modeIndex ? "is-active" : undefined}
-              role="tab"
-              aria-selected={index === modeIndex}
-              onClick={() => setModeIndex(index)}
-            >
-              <span>{item.id}</span>
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <p>
-          <span aria-hidden="true">↳</span>
-          {mode.instruction}
-        </p>
-      </div>
+      <canvas
+        className="trace-live-canvas"
+        ref={canvasRef}
+        aria-hidden="true"
+      />
+      <canvas
+        className="trace-transition-canvas"
+        ref={transitionCanvasRef}
+        aria-hidden="true"
+      />
     </div>
   );
 }
