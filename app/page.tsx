@@ -1,4 +1,5 @@
-import { ResearchSystem } from "./components/ResearchSystem";
+import { PageMotion } from "./components/PageMotion";
+import { ResearchTrace } from "./components/ResearchTrace";
 
 const researchAreas = [
   {
@@ -73,6 +74,7 @@ const selectedWorks = [
 export default function Home() {
   return (
     <main>
+      <PageMotion />
       <div className="scroll-meter" aria-hidden="true" />
 
       <header className="site-header">
@@ -96,6 +98,7 @@ export default function Home() {
       </header>
 
       <section className="hero" id="top">
+        <ResearchTrace />
         <div className="hero-main">
           <p className="eyebrow">
             <span className="status-dot" />
@@ -136,7 +139,21 @@ export default function Home() {
           </div>
         </div>
 
-        <ResearchSystem />
+        <aside className="hero-index" aria-label="Research areas">
+          <p>Research index</p>
+          <a href="#research">
+            <span>01 / MAS</span>
+            Multi-Agent Systems
+          </a>
+          <a href="#research">
+            <span>02 / AI4S</span>
+            AI for Science
+          </a>
+          <a href="#research">
+            <span>03 / IR</span>
+            RAG &amp; Generative Retrieval
+          </a>
+        </aside>
 
         <div className="hero-register" aria-hidden="true">
           <span>RESEARCH PROFILE / 2026</span>
