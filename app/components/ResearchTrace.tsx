@@ -23,7 +23,12 @@ type Ripple = {
   life: number;
 };
 
-const modes: ModeId[] = ["MAS", "AI4S", "RAG"];
+const modes: ModeId[] = ["AI4S", "MAS", "RAG"];
+const modeDurations: Record<ModeId, number> = {
+  AI4S: 6800,
+  MAS: 5000,
+  RAG: 4200,
+};
 
 const palettes: Record<
   ModeId,
@@ -31,7 +36,6 @@ const palettes: Record<
     blue: string;
     blueSoft: string;
     bluePale: string;
-    line: string;
     rgb: [number, number, number];
   }
 > = {
@@ -39,21 +43,18 @@ const palettes: Record<
     blue: "#2d6f92",
     blueSoft: "#75b9db",
     bluePale: "#b7e2f6",
-    line: "rgba(11, 18, 24, 0.15)",
     rgb: [45, 111, 146],
   },
   AI4S: {
     blue: "#287c78",
     blueSoft: "#79c9c0",
     bluePale: "#c7e9e3",
-    line: "rgba(40, 124, 120, 0.152)",
     rgb: [40, 124, 120],
   },
   RAG: {
     blue: "#4d669b",
     blueSoft: "#9eb5e2",
     bluePale: "#d8e1f5",
-    line: "rgba(77, 102, 155, 0.152)",
     rgb: [77, 102, 155],
   },
 };
@@ -111,17 +112,24 @@ export function ResearchTrace() {
       }
     };
 
-    const interval = window.setInterval(() => {
-      if (manualPauseRef.current > 0) {
-        manualPauseRef.current -= 1;
-        return;
-      }
-      transitionToMode((modeIndexRef.current + 1) % modes.length);
-    }, 4800);
+    let rotationTimer: number;
+    const scheduleRotation = () => {
+      const currentMode = modes[modeIndexRef.current];
+      rotationTimer = window.setTimeout(() => {
+        if (manualPauseRef.current > 0) {
+          manualPauseRef.current -= 1;
+          scheduleRotation();
+          return;
+        }
+        transitionToMode((modeIndexRef.current + 1) % modes.length);
+        scheduleRotation();
+      }, modeDurations[currentMode]);
+    };
 
+    scheduleRotation();
     window.addEventListener("research-field-select", handleFieldSelect);
     return () => {
-      window.clearInterval(interval);
+      window.clearTimeout(rotationTimer);
       window.removeEventListener("research-field-select", handleFieldSelect);
     };
   }, [transitionToMode]);
@@ -142,7 +150,6 @@ export function ResearchTrace() {
       "--field-accent": palette.blue,
       "--field-accent-soft": palette.blueSoft,
       "--field-rgb": palette.rgb.join(" "),
-      "--line": palette.line,
     };
 
     if (!hasTransitionedRef.current) {
@@ -198,11 +205,13 @@ export function ResearchTrace() {
       y: 0,
       active: false,
     };
+    const root = document.documentElement;
 
     let width = 0;
     let height = 0;
     let nodes: FieldNode[] = [];
     let ripples: Ripple[] = [];
+    let darkTheme = root.dataset.theme === "dark";
     let seed = 131 + modeIndex * 179;
     let lastTime = performance.now();
     let startTime = lastTime;
@@ -255,7 +264,9 @@ export function ResearchTrace() {
       context.fillRect(0, 0, width, height);
 
       context.save();
-      context.strokeStyle = "rgba(13, 34, 47, 0.025)";
+      context.strokeStyle = darkTheme
+        ? "rgba(220, 233, 238, 0.035)"
+        : "rgba(13, 34, 47, 0.025)";
       context.lineWidth = 0.65;
       const spacing = width < 700 ? 46 : 64;
       for (let x = spacing; x < width; x += spacing) {
@@ -275,7 +286,7 @@ export function ResearchTrace() {
 
     const drawNode = (node: FieldNode, opacity: number, accent = false) => {
       context.fillStyle = accent
-        ? `rgba(${accentDarkRgb}, ${opacity})`
+        ? `rgba(${darkTheme ? accentLightRgb : accentDarkRgb}, ${opacity})`
         : `rgba(${accentRgb}, ${opacity})`;
       context.beginPath();
       context.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
@@ -359,7 +370,7 @@ export function ResearchTrace() {
         nodes.slice(index + 1).forEach((second) => {
           const distance = Math.hypot(first.x - second.x, first.y - second.y);
           if (distance >= relationRadius) return;
-          context.strokeStyle = `rgba(${accentDarkRgb}, ${(1 - distance / relationRadius) * 0.14})`;
+          context.strokeStyle = `rgba(${darkTheme ? accentLightRgb : accentDarkRgb}, ${(1 - distance / relationRadius) * 0.14})`;
           context.lineWidth = 0.6;
           context.beginPath();
           context.moveTo(first.x, first.y);
@@ -432,7 +443,7 @@ export function ResearchTrace() {
         node.energy += ((selected ? score : 0) - node.energy) * 0.04 * delta;
 
         if (selected) {
-          context.strokeStyle = `rgba(${accentDarkRgb}, ${node.energy * 0.16})`;
+          context.strokeStyle = `rgba(${darkTheme ? accentLightRgb : accentDarkRgb}, ${node.energy * 0.16})`;
           context.lineWidth = 0.6;
           context.beginPath();
           context.moveTo(anchorX, anchorY);
@@ -449,7 +460,7 @@ export function ResearchTrace() {
             travel < 0.5
               ? anchorY + (node.y - anchorY) * travel * 2
               : node.y + (synthesisY - node.y) * (travel - 0.5) * 2;
-          context.fillStyle = `rgba(${accentDarkRgb}, 0.52)`;
+          context.fillStyle = `rgba(${darkTheme ? accentLightRgb : accentDarkRgb}, 0.52)`;
           context.beginPath();
           context.arc(streamX, streamY, 1.4, 0, Math.PI * 2);
           context.fill();
@@ -458,7 +469,7 @@ export function ResearchTrace() {
         drawNode(node, 0.12 + node.energy * 0.62, selected);
       });
 
-      context.fillStyle = `rgba(${accentDarkRgb}, 0.6)`;
+      context.fillStyle = `rgba(${darkTheme ? accentLightRgb : accentDarkRgb}, 0.6)`;
       context.beginPath();
       context.arc(synthesisX, synthesisY, 2.5, 0, Math.PI * 2);
       context.fill();
@@ -507,6 +518,11 @@ export function ResearchTrace() {
       pointer.active = false;
     };
 
+    const themeObserver = new MutationObserver(() => {
+      darkTheme = root.dataset.theme === "dark";
+      if (reducedMotion) draw(performance.now());
+    });
+
     const pulseField = (event: PointerEvent) => {
       const target = event.target as HTMLElement;
       if (target.closest("a, button")) return;
@@ -533,6 +549,10 @@ export function ResearchTrace() {
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
+    themeObserver.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
     hero.addEventListener("pointermove", updatePointer, { passive: true });
     hero.addEventListener("pointerleave", leavePointer);
     hero.addEventListener("pointerdown", pulseField);
@@ -541,6 +561,7 @@ export function ResearchTrace() {
 
     return () => {
       resizeObserver.disconnect();
+      themeObserver.disconnect();
       hero.removeEventListener("pointermove", updatePointer);
       hero.removeEventListener("pointerleave", leavePointer);
       hero.removeEventListener("pointerdown", pulseField);

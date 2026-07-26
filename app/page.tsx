@@ -1,43 +1,42 @@
 import Image from "next/image";
 import { PageMotion } from "./components/PageMotion";
+import { PortraitToggle } from "./components/PortraitToggle";
 import {
   ResearchFieldSelector,
   type ResearchArea,
 } from "./components/ResearchFieldSelector";
 import { ResearchTrace } from "./components/ResearchTrace";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 const researchAreas: ResearchArea[] = [
-  {
-    code: "MAS",
-    title: "Multi-Agent Systems",
-    description:
-      "I study how multiple intelligent agents communicate, coordinate, and reason together, especially when no single agent has the complete context or capability.",
-    questions: [
-      "Coordination & communication",
-      "Collective reasoning",
-      "Agent learning & evaluation",
-    ],
-  },
   {
     code: "AI4S",
     title: "AI for Science",
     description:
-      "My interest is not tied to one scientific domain. I explore AI as a new layer in the research process: helping formulate questions, connect evidence, run inquiry, and reshape how discovery is organized.",
+      "I design AI-native workflows that support literature synthesis, question formulation, iterative investigation, and scientific decision-making across domains.",
     questions: [
-      "AI-native research workflows",
-      "Human-agent collaboration",
-      "Scientific discovery systems",
+      "Research agents",
+      "Evidence-to-insight workflows",
+    ],
+  },
+  {
+    code: "MAS",
+    title: "Multi-Agent Systems",
+    description:
+      "I study how specialized agents share context, divide work, and coordinate long-horizon reasoning in research and other knowledge-intensive settings.",
+    questions: [
+      "Agent coordination",
+      "Collective reasoning",
     ],
   },
   {
     code: "IR",
     title: "RAG & Generative Retrieval",
     description:
-      "I work on systems that retrieve, generate, and ground knowledge, connecting foundation models with external evidence through RAG and generative retrieval.",
+      "I build retrieval systems that connect generative models with structured, attributable evidence through entity- and relationship-aware representations.",
     questions: [
-      "Retrieval-augmented generation",
+      "Grounded generation",
       "Generative retrieval",
-      "Knowledge-intensive systems",
     ],
   },
 ];
@@ -59,7 +58,7 @@ const selectedWorks = [
     area: "RAG / RETRIEVAL",
     title:
       "ChunkGraph: Relationship-Driven Retrieval Through Progressive Complete Graphs",
-    authors: "Jiale Zhang, Kui Zhao, H. Zhang, F. Zhang, X. Liu",
+    authors: "Jiale Zhang, Kui Zhao, Hao Zhang, Fuzhe Zhang, Xu Liu",
     venue: "IEEE ICCC · 2025",
     href: "https://doi.org/10.1109/ICCC68654.2025.11438132",
   },
@@ -70,7 +69,7 @@ const selectedWorks = [
     title:
       "AI2Agent: An End-to-End Framework for Deploying AI Projects as Autonomous Agents",
     authors:
-      "Jiaxiang Chen, Jingwei Shi, Lei Gan, Jiale Zhang, Qingyu Zhang, et al.",
+      "Jiaxiang Chen, Jingwei Shi, Lei Gan, Jiale Zhang, Qingyu Zhang, Dongqian Zhang, Xin Pang, Zhucong Li, Yinghui Xu",
     venue: "ACL System Demonstrations · 2025",
     href: "https://aclanthology.org/2025.acl-demo.51/",
   },
@@ -101,16 +100,19 @@ export default function Home() {
             <a href="#about">About</a>
           </nav>
 
-          <a className="contact-link" href="#contact">
-            Contact <span aria-hidden="true">↗</span>
-          </a>
+          <div className="header-actions">
+            <ThemeToggle />
+            <a className="contact-link" href="#contact">
+              Contact <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </header>
 
         <section className="hero" id="top">
           <ResearchTrace />
           <div className="hero-main">
-            <p className="eyebrow">
-              Ph.D. Candidate in Computer Science / Fudan University
+            <p className="hero-slogan hero-slogan-inline">
+              Ethically aligned. <em>Probably.</em>
             </p>
 
             <h1 aria-label="Jiale Zhang">
@@ -119,12 +121,12 @@ export default function Home() {
             </h1>
 
             <p className="hero-thesis">
-              I study{" "}
+              I build AI-native systems for{" "}
               <span className="typed-line" aria-live="polite">
                 <span
-                  data-phrases="multi-agent systems.|AI-enabled research paradigms.|RAG and generative retrieval."
+                  data-phrases="scientific inquiry.|multi-agent collaboration.|evidence-grounded generation."
                 >
-                  multi-agent systems.
+                  scientific inquiry.
                 </span>
               </span>
             </p>
@@ -145,80 +147,45 @@ export default function Home() {
             </div>
           </div>
 
-        <aside className="hero-profile" aria-label="Profile at a glance">
-            <p className="hero-slogan">
-              Ethically aligned. <em>Probably.</em>
-            </p>
-            <div className="hero-profile-head">
-              <Image
-                src="/jiale-zhang.jpg"
-                alt="Jarlor, Jiale Zhang's illustrated GitHub avatar"
-                width={54}
-                height={54}
-                priority
-                unoptimized
-              />
-              <div>
-                <strong>Jiale Zhang</strong>
-                <span>Jarlor online</span>
+        <aside className="hero-profile" aria-label="Current research focus">
+            <div className="hero-focus-layout">
+              <PortraitToggle />
+              <dl className="hero-facts">
+                <div>
+                  <dt>Affiliation</dt>
+                  <dd>Fudan University</dd>
+                </div>
+                <div>
+                  <dt>Position</dt>
+                  <dd>Ph.D. Candidate / Computer Science</dd>
+                </div>
+                <div>
+                  <dt>Based in</dt>
+                  <dd>Shanghai, China</dd>
+                </div>
+                <div className="hero-facts-email">
+                  <dt>Email</dt>
+                  <dd>
+                    <a href="mailto:jarlor@foxmail.com">jarlor@foxmail.com</a>
+                    <a href="mailto:zhangjiale23@mails.ucas.ac.cn">
+                      zhangjiale23@mails.ucas.ac.cn
+                    </a>
+                  </dd>
+                </div>
+              </dl>
+              <div className="hero-current-focus" data-research-mode="AI4S">
+                <span>Current focus / AI for Science</span>
+                <h2>AI-native research workflows</h2>
+                <p>
+                  Studying how agentic systems support evidence search,
+                  synthesis, iterative analysis, and scientific
+                  decision-making.
+                </p>
+                <a href="#research">
+                  Research agenda <span aria-hidden="true">↘</span>
+                </a>
               </div>
             </div>
-
-            <p className="hero-profile-intro">
-              I build AI systems that coordinate, retrieve evidence, and support
-              the general process of scientific inquiry.
-            </p>
-
-            <dl>
-              <div>
-                <dt>Position</dt>
-                <dd>Ph.D. Candidate</dd>
-              </div>
-              <div>
-                <dt>Affiliation</dt>
-                <dd>Fudan University</dd>
-              </div>
-              <div>
-                <dt>Based in</dt>
-                <dd>Shanghai, China</dd>
-              </div>
-            </dl>
-
-            <div className="hero-profile-group">
-              <span>Research focus</span>
-              <p data-research-mode="MAS">Multi-Agent Systems</p>
-              <p data-research-mode="AI4S">AI for Science</p>
-              <p data-research-mode="RAG">RAG &amp; Generative Retrieval</p>
-            </div>
-
-            <div className="hero-profile-group hero-profile-work">
-              <span>Recent work</span>
-              <a
-                href="https://arxiv.org/abs/2506.17288"
-                target="_blank"
-                rel="noreferrer"
-                data-research-mode="RAG"
-              >
-                SlimRAG <b>2025 ↗</b>
-              </a>
-              <a
-                href="https://aclanthology.org/2025.acl-demo.51/"
-                target="_blank"
-                rel="noreferrer"
-                data-research-mode="MAS"
-              >
-                AI2Agent <b>ACL 2025 ↗</b>
-              </a>
-            </div>
-
-            <a
-              className="hero-profile-link"
-              href="https://github.com/jarlor"
-              target="_blank"
-              rel="noreferrer"
-            >
-              github.com/jarlor <span aria-hidden="true">↗</span>
-            </a>
         </aside>
       </section>
 
@@ -230,13 +197,13 @@ export default function Home() {
 
         <div className="research-intro">
           <h2 data-reveal>
-            <span>From individual models to</span>
-            <em>connected research systems.</em>
+            <span>AI as part of the</span>
+            <em>scientific method.</em>
           </h2>
           <p data-reveal>
-            Three strands of work, joined by one systems view: intelligence
-            becomes more useful when it can coordinate, access knowledge, and
-            participate in the process of discovery.
+            My work explores how AI can organize evidence, coordinate inquiry,
+            and participate in the research process itself—not as a model for
+            one narrow scientific domain, but as infrastructure for research.
           </p>
         </div>
 
@@ -252,10 +219,7 @@ export default function Home() {
 
           <div className="publication-heading" data-reveal>
             <h2>Publications.</h2>
-            <p>
-              Papers and research systems across retrieval, generative
-              knowledge, and autonomous agents.
-            </p>
+            <p>Selected peer-reviewed papers and preprints.</p>
           </div>
 
           <div className="publication-list">
@@ -269,7 +233,6 @@ export default function Home() {
                 data-research-mode={
                   work.area.includes("AGENT SYSTEMS") ? "MAS" : "RAG"
                 }
-                data-reveal
               >
                 <span className="publication-index">0{index + 1}</span>
                 <div className="publication-meta">
@@ -315,56 +278,37 @@ export default function Home() {
             <div className="portrait">
               <Image
                 src="/jiale-zhang.jpg"
-                alt="Jarlor, Jiale Zhang's illustrated GitHub avatar"
-                width={460}
-                height={460}
+                alt="Portrait of Jiale Zhang"
+                width={1086}
+                height={1448}
                 unoptimized
               />
-              <span>JARLOR / GITHUB IDENTITY</span>
             </div>
-            <dl>
-              <div>
-                <dt>BASE</dt>
-                <dd>Shanghai, China</dd>
-              </div>
-              <div>
-                <dt>STATUS</dt>
-                <dd>Ph.D. Candidate</dd>
-              </div>
-              <div>
-                <dt>FIELD</dt>
-                <dd>Computer Science / AI</dd>
-              </div>
-            </dl>
           </aside>
 
           <div className="about-copy" data-reveal>
-            <div className="about-heading">
-              <h2>Jiale Zhang</h2>
-              <p>
-                Ph.D. Candidate in Computer Science
-                <span>Fudan University · Shanghai</span>
-              </p>
+            <div className="about-heading about-heading-simple">
+              <h2>About.</h2>
             </div>
             <p className="about-lead">
-              Known online as <em>Jarlor</em>, I study how AI systems
-              collaborate, connect to external knowledge, and support the
-              scientific process.
+              Known online as <em>Jarlor</em>, I care about research systems
+              that are not only capable, but legible, maintainable, and useful
+              over long horizons.
             </p>
             <div className="about-columns">
               <p>
-                My recent work spans entity-aware and relationship-driven
-                retrieval, as well as agent frameworks that turn AI projects
-                into more autonomous systems.
+                My current work centers on AI for Science at the level of
+                research methodology: systems that augment how research is
+                organized, conducted, and evaluated.
               </p>
               <p>
-                Across these projects, I&apos;m interested in systems that can
-                organize evidence, coordinate complex work, and make scientific
-                inquiry more capable, not just automate one narrow domain.
+                I am especially interested in connecting evidence access,
+                agentic coordination, and executable workflows into research
+                systems that can improve through use.
               </p>
             </div>
 
-            <div className="timeline">
+            <div className="education-list">
               <div>
                 <span>PRESENT</span>
                 <p>
@@ -373,10 +317,11 @@ export default function Home() {
                 </p>
               </div>
               <div>
-                <span>PREVIOUS</span>
+                <span>2023—2026</span>
                 <p>
-                  <strong>Earlier public affiliation</strong>
-                  University of Chinese Academy of Sciences
+                  <strong>Master&apos;s in Computer Technology</strong>
+                  University of Chinese Academy of Sciences · Shenyang
+                  Institute of Computing Technology
                 </p>
               </div>
             </div>
@@ -396,11 +341,9 @@ export default function Home() {
           </h2>
           <a
             className="email-link"
-            href="https://github.com/jarlor"
-            target="_blank"
-            rel="noreferrer"
+            href="mailto:jarlor@foxmail.com"
           >
-            github.com/jarlor
+            jarlor@foxmail.com
             <span aria-hidden="true">↗</span>
           </a>
           <div className="social-links">
@@ -416,20 +359,13 @@ export default function Home() {
               target="_blank"
               rel="noreferrer"
             >
-              GitHub
-            </a>
-            <a
-              href="https://arxiv.org/abs/2506.17288"
-              target="_blank"
-              rel="noreferrer"
-            >
-              arXiv
+              GitHub profile
             </a>
           </div>
         </div>
         <footer>
           <span>© 2026 Jiale Zhang</span>
-          <span>Fudan University · Shanghai</span>
+          <span>Ethically aligned. Probably.</span>
         </footer>
         </section>
     </main>

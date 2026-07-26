@@ -19,7 +19,7 @@ export function ResearchFieldSelector({
 }: {
   areas: ResearchArea[];
 }) {
-  const [activeMode, setActiveMode] = useState<ModeId>("MAS");
+  const [activeMode, setActiveMode] = useState<ModeId>("AI4S");
 
   useEffect(() => {
     const handleFieldChange = (event: Event) => {

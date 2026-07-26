@@ -8,9 +8,9 @@ import { useEffect } from "react";
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const phrases = {
-  MAS: "multi-agent systems.",
-  AI4S: "AI-enabled research paradigms.",
-  RAG: "RAG and generative retrieval.",
+  AI4S: "scientific inquiry.",
+  MAS: "multi-agent collaboration.",
+  RAG: "evidence-grounded generation.",
 } as const;
 
 export function PageMotion() {
@@ -86,7 +86,7 @@ export function PageMotion() {
 
     const initialMode =
       (document.documentElement.dataset
-        .researchFocus as keyof typeof phrases) || "MAS";
+        .researchFocus as keyof typeof phrases) || "AI4S";
     selectPhrase(initialMode, { initial: true });
     window.addEventListener("research-field-change", handleResearchFieldChange);
 
@@ -176,8 +176,13 @@ export function PageMotion() {
         );
       },
     });
+    const initialRefresh = gsap.delayedCall(0.12, () => {
+      ScrollTrigger.refresh();
+      ScrollTrigger.update();
+    });
 
     return () => {
+      initialRefresh.kill();
       progressTrigger.kill();
       media.revert();
     };
