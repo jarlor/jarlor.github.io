@@ -1,11 +1,16 @@
 "use client";
 
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect } from "react";
 
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
 const phrases = [
-  "reason and coordinate across agents.",
-  "turn AI into infrastructure for scientific discovery.",
-  "retrieve, generate, and ground knowledge.",
+  "multi-agent systems.",
+  "AI-enabled research paradigms.",
+  "RAG and generative retrieval.",
 ];
 
 export function PageMotion() {
@@ -48,39 +53,86 @@ export function PageMotion() {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const revealItems = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12 },
-    );
+  useGSAP(() => {
+    const media = gsap.matchMedia();
 
-    revealItems.forEach((item) => revealObserver.observe(item));
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((item) => {
+        gsap.fromTo(
+          item,
+          { autoAlpha: 0, y: 44 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.95,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: item,
+              start: "top 88%",
+              once: true,
+            },
+          },
+        );
+      });
 
-    const updateProgress = () => {
-      const available =
-        document.documentElement.scrollHeight - window.innerHeight;
-      const progress = available > 0 ? window.scrollY / available : 0;
+      gsap.fromTo(
+        ".research-intro h2",
+        { opacity: 0.28, y: 38 },
+        {
+          opacity: 1,
+          y: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".research-intro",
+            start: "top 82%",
+            end: "top 38%",
+            scrub: 0.7,
+          },
+        },
+      );
+
+      gsap.fromTo(
+        ".portrait img",
+        { scale: 0.88, opacity: 0.42 },
+        {
+          scale: 1,
+          opacity: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".profile-plate",
+            start: "top bottom",
+            end: "center center",
+            scrub: 0.7,
+          },
+        },
+      );
+    });
+
+    media.add("(prefers-reduced-motion: reduce)", () => {
+      gsap.set("[data-reveal]", { autoAlpha: 1, y: 0 });
+      gsap.set(".research-intro h2, .portrait img", {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+      });
+    });
+
+    const progressTrigger = ScrollTrigger.create({
+      start: 0,
+      end: "max",
+      onUpdate: ({ progress }) => {
       document.documentElement.style.setProperty(
         "--scroll-progress",
         `${progress}`,
       );
-    };
+      },
+    });
 
-    updateProgress();
-    window.addEventListener("scroll", updateProgress, { passive: true });
     return () => {
-      revealObserver.disconnect();
-      window.removeEventListener("scroll", updateProgress);
+      progressTrigger.kill();
+      media.revert();
     };
-  }, []);
+  });
 
   return null;
 }

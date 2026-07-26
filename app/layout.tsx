@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Manrope, Source_Serif_4 } from "next/font/google";
+import { Geist, IBM_Plex_Mono, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({
+const geist = Geist({
   variable: "--font-sans",
   subsets: ["latin"],
 });
@@ -19,7 +19,7 @@ const plexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-const title = "Jiale Zhang — AI Researcher at Fudan University";
+const title = "Jiale Zhang - AI Researcher at Fudan University";
 const description =
   "Personal research homepage of a computer science Ph.D. student at Fudan University, working on multi-agent systems, AI for Science, RAG, and generative retrieval.";
 
@@ -57,7 +57,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${manrope.variable} ${sourceSerif.variable} ${plexMono.variable}`}
+        className={`${geist.variable} ${sourceSerif.variable} ${plexMono.variable}`}
       >
         {children}
       </body>
