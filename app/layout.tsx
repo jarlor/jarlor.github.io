@@ -30,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
     requestHeaders.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
-  const title = "Your Name — AI Researcher at Fudan University";
+  const title = "Jiale Zhang — AI Researcher at Fudan University";
   const description =
     "Personal research homepage of a computer science Ph.D. student at Fudan University, working on multi-agent systems, AI for Science, RAG, and generative retrieval.";
 
@@ -44,10 +44,10 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: `${origin}/og.png`,
+          url: `${origin}/og-jiale.png`,
           width: 1200,
           height: 630,
-          alt: "Research profile for Your Name",
+          alt: "Research profile for Jiale Zhang",
         },
       ],
     },
@@ -55,7 +55,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: [`${origin}/og.png`],
+      images: [`${origin}/og-jiale.png`],
     },
   };
 }

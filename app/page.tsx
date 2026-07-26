@@ -36,30 +36,37 @@ const researchAreas = [
   },
 ];
 
-const workPlaceholders = [
+const selectedWorks = [
   {
-    year: "2026",
-    status: "MANUSCRIPT",
-    area: "MULTI-AGENT SYSTEMS",
-    title: "Your primary paper title goes here",
-    authors: "Your Name, Collaborator A, Collaborator B",
-    venue: "Conference / Journal",
+    year: "2025",
+    status: "PREPRINT",
+    area: "RAG",
+    title: "SlimRAG: Retrieval without Graphs via Entity-Aware Context Selection",
+    authors:
+      "Jiale Zhang, Jiaxiang Chen, Zhucong Li, Jie Ding, Kui Zhao, Zenglin Xu, Xin Pang, Yinghui Xu",
+    venue: "arXiv · 2025",
+    href: "https://arxiv.org/abs/2506.17288",
   },
   {
     year: "2025",
     status: "CONFERENCE",
-    area: "AI FOR SCIENCE",
-    title: "A paper on AI-native scientific research",
-    authors: "Your Name, Collaborator A",
-    venue: "Conference · Oral / Spotlight",
+    area: "RAG / RETRIEVAL",
+    title:
+      "ChunkGraph: Relationship-Driven Retrieval Through Progressive Complete Graphs",
+    authors: "Jiale Zhang, Kui Zhao, H. Zhang, F. Zhang, X. Liu",
+    venue: "IEEE ICCC · 2025",
+    href: "https://doi.org/10.1109/ICCC68654.2025.11438132",
   },
   {
     year: "2025",
-    status: "PREPRINT",
-    area: "GENERATIVE RETRIEVAL",
-    title: "A project connecting generation and retrieval",
-    authors: "Collaborator A, Your Name, Collaborator B",
-    venue: "arXiv preprint",
+    status: "ACL DEMO",
+    area: "AGENT SYSTEMS",
+    title:
+      "AI2Agent: An End-to-End Framework for Deploying AI Projects as Autonomous Agents",
+    authors:
+      "Jiaxiang Chen, Jingwei Shi, Lei Gan, Jiale Zhang, Qingyu Zhang, et al.",
+    venue: "ACL System Demonstrations · 2025",
+    href: "https://aclanthology.org/2025.acl-demo.51/",
   },
 ];
 
@@ -70,10 +77,10 @@ export default function Home() {
 
       <header className="site-header">
         <a className="identity" href="#top" aria-label="Back to top">
-          <span className="identity-mark">YN</span>
+          <span className="identity-mark">JZ</span>
           <span>
-            YOUR NAME
-            <small>FUDAN UNIVERSITY</small>
+            JIALE ZHANG
+            <small>JARLOR · AI RESEARCH</small>
           </span>
         </a>
 
@@ -194,17 +201,19 @@ export default function Home() {
           <div className="publication-heading" data-reveal>
             <h2>Research, recorded.</h2>
             <p>
-              Papers, preprints, and working systems. Replace the sample rows
-              below with your publication list.
+              Papers, preprints, and working systems across retrieval and
+              autonomous agents.
             </p>
           </div>
 
           <div className="publication-list">
-            {workPlaceholders.map((work, index) => (
-              <article
+            {selectedWorks.map((work, index) => (
+              <a
                 className="publication-row"
                 key={work.title}
-                tabIndex={0}
+                href={work.href}
+                target="_blank"
+                rel="noreferrer"
                 data-reveal
               >
                 <span className="publication-index">0{index + 1}</span>
@@ -221,15 +230,20 @@ export default function Home() {
                 <span className="publication-arrow" aria-hidden="true">
                   ↗
                 </span>
-              </article>
+              </a>
             ))}
           </div>
 
-          <p className="sample-note" data-reveal>
-            <span>NOTE</span>
-            Sample copy is deliberately marked. Add your Scholar profile or
-            BibTeX to turn this into your actual publication record.
-          </p>
+          <a
+            className="scholar-link"
+            href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
+            target="_blank"
+            rel="noreferrer"
+            data-reveal
+          >
+            View the complete record on Google Scholar
+            <span aria-hidden="true">↗</span>
+          </a>
         </div>
       </section>
 
@@ -241,9 +255,12 @@ export default function Home() {
 
         <div className="about-layout">
           <aside className="profile-plate" data-reveal>
-            <div className="portrait-placeholder">
-              <span>PORTRAIT</span>
-              <small>Replace with a monochrome research portrait</small>
+            <div className="portrait">
+              <img
+                src="/jiale-zhang.jpg"
+                alt="Jarlor, Jiale Zhang's illustrated GitHub avatar"
+              />
+              <span>JARLOR / GITHUB IDENTITY</span>
             </div>
             <dl>
               <div>
@@ -263,26 +280,26 @@ export default function Home() {
 
           <div className="about-copy" data-reveal>
             <p className="about-lead">
-              I am a doctoral researcher at <em>Fudan University</em>. I study
-              how AI systems collaborate, connect to knowledge, and become part
-              of the scientific process.
+              I&apos;m <em>Jiale Zhang</em>—Jarlor online—a doctoral researcher
+              at Fudan University studying how AI systems collaborate, connect
+              to knowledge, and become part of the scientific process.
             </p>
             <div className="about-columns">
               <p>
-                Add the path that brought you here: your previous training,
-                research groups, and the questions that led you to multi-agent
-                systems, AI4S, and retrieval.
+                My recent work spans entity-aware and relationship-driven
+                retrieval, as well as agent frameworks that turn AI projects
+                into more autonomous systems.
               </p>
               <p>
-                Add one human detail outside research. A serious academic page
-                can still show the person behind the work—what you read, build,
-                photograph, or care about.
+                Across these projects, I&apos;m interested in systems that can
+                organize evidence, coordinate complex work, and make scientific
+                inquiry more capable—not just automate one narrow domain.
               </p>
             </div>
 
             <div className="timeline">
               <div>
-                <span>2024 — PRESENT</span>
+                <span>PRESENT</span>
                 <p>
                   <strong>Ph.D. in Computer Science</strong>
                   Fudan University · Shanghai
@@ -291,8 +308,8 @@ export default function Home() {
               <div>
                 <span>PREVIOUS</span>
                 <p>
-                  <strong>Your previous chapter</strong>
-                  University, lab, or research team
+                  <strong>Earlier public affiliation</strong>
+                  University of Chinese Academy of Sciences
                 </p>
               </div>
             </div>
@@ -311,27 +328,41 @@ export default function Home() {
             Questions are better
             <em> when shared.</em>
           </h2>
-          <a className="email-link" href="mailto:your.email@fudan.edu.cn">
-            your.email@fudan.edu.cn
+          <a
+            className="email-link"
+            href="https://github.com/jarlor"
+            target="_blank"
+            rel="noreferrer"
+          >
+            github.com/jarlor
             <span aria-hidden="true">↗</span>
           </a>
           <div className="social-links">
-            <a href="#contact" aria-label="Add Google Scholar link">
+            <a
+              href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
+              target="_blank"
+              rel="noreferrer"
+            >
               Google Scholar
             </a>
-            <a href="#contact" aria-label="Add GitHub link">
+            <a
+              href="https://github.com/jarlor"
+              target="_blank"
+              rel="noreferrer"
+            >
               GitHub
             </a>
-            <a href="#contact" aria-label="Add ORCID link">
-              ORCID
-            </a>
-            <a href="#contact" aria-label="Add CV link">
-              Curriculum Vitae
+            <a
+              href="https://arxiv.org/abs/2506.17288"
+              target="_blank"
+              rel="noreferrer"
+            >
+              arXiv
             </a>
           </div>
         </div>
         <footer>
-          <span>© 2026 Your Name</span>
+          <span>© 2026 Jiale Zhang</span>
           <span>Fudan University · Shanghai</span>
         </footer>
       </section>
