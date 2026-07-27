@@ -154,10 +154,11 @@ export default function Home() {
               </dl>
               <div className="hero-current-focus" data-research-mode="AI4S">
                 <span>Current focus / AI for Science</span>
-                <h2>Reshaping scientific inquiry</h2>
+                <h2>AI-Native Research</h2>
                 <p>
-                  I build agentic systems that reshape how questions are
-                  formed, evidence is organized, and investigations evolve.
+                  I design agentic infrastructure that helps formulate
+                  questions, organize evidence, and carry scientific
+                  investigations forward.
                 </p>
                 <a href="#research">
                   Research agenda <span aria-hidden="true">↘</span>
@@ -200,19 +201,21 @@ export default function Home() {
             <span>02 / 04</span>
           </div>
 
-          <div className="research-intro">
-            <h2 data-reveal>
-              <span>From grounded evidence</span>
-              <em>to evolving inquiry.</em>
-            </h2>
-            <p data-reveal>
-              Retrieval grounds the system. Agents extend it through
-              coordination. AI for Science turns both into an iterative
-              research methodology.
-            </p>
-          </div>
+          <div className="research-composition">
+            <div className="research-intro">
+              <h2 data-reveal>
+                <span>From Evidence</span>
+                <em>to Systems for Discovery.</em>
+              </h2>
+              <p data-reveal>
+                Retrieval grounds evidence. Agents coordinate reasoning.
+                Together, they turn scientific inquiry into an inspectable,
+                iterative system.
+              </p>
+            </div>
 
-          <ResearchFieldSelector areas={researchAreas} />
+            <ResearchFieldSelector areas={researchAreas} />
+          </div>
         </section>
 
         <section className="about section-shell" id="about">
