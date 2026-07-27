@@ -145,9 +145,9 @@ export default function Home() {
                       <span>Personal</span>
                       jarlor@foxmail.com
                     </a>
-                    <a href="mailto:zhangjiale23@mails.ucas.ac.cn">
+                    <a href="mailto:jlzhang26@m.fudan.edu.cn">
                       <span>Academic</span>
-                      zhangjiale23@mails.ucas.ac.cn
+                      jlzhang26@m.fudan.edu.cn
                     </a>
                   </dd>
                 </div>
@@ -293,11 +293,11 @@ export default function Home() {
               </a>
               <a
                 className="email-link"
-                href="mailto:zhangjiale23@mails.ucas.ac.cn"
+                href="mailto:jlzhang26@m.fudan.edu.cn"
               >
                 <span className="email-kind">Academic</span>
                 <span className="email-address">
-                  zhangjiale23@mails.ucas.ac.cn
+                  jlzhang26@m.fudan.edu.cn
                 </span>
                 <span aria-hidden="true">↗</span>
               </a>
