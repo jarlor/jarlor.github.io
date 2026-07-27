@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-labelledby="title desc">
+  <title id="title">Conceptual overview of ChunkGraph</title>
+  <desc id="desc">A three-stage diagram showing complete graph initialization, adaptive relationship discovery, and progressive pruning into a compact retrieval path.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0L12 6L0 12Z" fill="#4d669b"/>
+    </marker>
+    <style>
+      .label { font: 600 21px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .14em; fill: #4d669b; }
+      .title { font: 500 38px Georgia, serif; fill: #0b1218; }
+      .copy { font: 400 20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #596c75; }
+      .node-label { font: 600 17px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #fff; text-anchor: middle; dominant-baseline: central; }
+      .faint-edge { stroke: #d9e0ec; stroke-width: 2; }
+      .mid-edge { stroke: #9eb5e2; stroke-width: 6; stroke-linecap: round; }
+      .strong-edge { stroke: #4d669b; stroke-width: 11; stroke-linecap: round; }
+      .node { fill: #4d669b; stroke: #fff; stroke-width: 7; }
+      .node-muted { fill: #d8e1f5; stroke: #fff; stroke-width: 7; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="820" rx="28" fill="#fbfcfd"/>
+  <path d="M533 92V728M1067 92V728" stroke="#dbe2e7" stroke-width="2"/>
+
+  <text x="64" y="72" class="label">01 / INITIALIZE</text>
+  <text x="598" y="72" class="label">02 / DISCOVER</text>
+  <text x="1132" y="72" class="label">03 / PRUNE</text>
+
+  <text x="64" y="132" class="title">Chunks as a complete graph</text>
+  <text x="598" y="132" class="title">Relationships become weighted</text>
+  <text x="1132" y="132" class="title">Relevant paths remain</text>
+
+  <text x="64" y="174" class="copy">Every chunk pair begins as a candidate relation.</text>
+  <text x="598" y="174" class="copy">The distribution separates useful edges from noise.</text>
+  <text x="1132" y="174" class="copy">Personalized PageRank concentrates the search.</text>
+
+  <g aria-label="Complete graph">
+    <line x1="128" y1="344" x2="266" y2="258" class="faint-edge"/>
+    <line x1="128" y1="344" x2="404" y2="332" class="faint-edge"/>
+    <line x1="128" y1="344" x2="396" y2="504" class="faint-edge"/>
+    <line x1="128" y1="344" x2="242" y2="574" class="faint-edge"/>
+    <line x1="128" y1="344" x2="120" y2="492" class="faint-edge"/>
+    <line x1="266" y1="258" x2="404" y2="332" class="faint-edge"/>
+    <line x1="266" y1="258" x2="396" y2="504" class="faint-edge"/>
+    <line x1="266" y1="258" x2="242" y2="574" class="faint-edge"/>
+    <line x1="266" y1="258" x2="120" y2="492" class="faint-edge"/>
+    <line x1="404" y1="332" x2="396" y2="504" class="faint-edge"/>
+    <line x1="404" y1="332" x2="242" y2="574" class="faint-edge"/>
+    <line x1="404" y1="332" x2="120" y2="492" class="faint-edge"/>
+    <line x1="396" y1="504" x2="242" y2="574" class="faint-edge"/>
+    <line x1="396" y1="504" x2="120" y2="492" class="faint-edge"/>
+    <line x1="242" y1="574" x2="120" y2="492" class="faint-edge"/>
+
+    <circle cx="128" cy="344" r="33" class="node"/><text x="128" y="344" class="node-label">C1</text>
+    <circle cx="266" cy="258" r="33" class="node"/><text x="266" y="258" class="node-label">C2</text>
+    <circle cx="404" cy="332" r="33" class="node"/><text x="404" y="332" class="node-label">C3</text>
+    <circle cx="396" cy="504" r="33" class="node"/><text x="396" y="504" class="node-label">C4</text>
+    <circle cx="242" cy="574" r="33" class="node"/><text x="242" y="574" class="node-label">C5</text>
+    <circle cx="120" cy="492" r="33" class="node"/><text x="120" y="492" class="node-label">C6</text>
+  </g>
+
+  <path d="M462 414H556" stroke="#4d669b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <g aria-label="Weighted relationship graph">
+    <line x1="662" y1="344" x2="800" y2="258" class="mid-edge"/>
+    <line x1="662" y1="344" x2="938" y2="332" class="strong-edge"/>
+    <line x1="662" y1="344" x2="930" y2="504" class="faint-edge"/>
+    <line x1="662" y1="344" x2="776" y2="574" class="mid-edge"/>
+    <line x1="662" y1="344" x2="654" y2="492" class="faint-edge"/>
+    <line x1="800" y1="258" x2="938" y2="332" class="faint-edge"/>
+    <line x1="800" y1="258" x2="930" y2="504" class="mid-edge"/>
+    <line x1="800" y1="258" x2="776" y2="574" class="faint-edge"/>
+    <line x1="800" y1="258" x2="654" y2="492" class="faint-edge"/>
+    <line x1="938" y1="332" x2="930" y2="504" class="strong-edge"/>
+    <line x1="938" y1="332" x2="776" y2="574" class="faint-edge"/>
+    <line x1="938" y1="332" x2="654" y2="492" class="faint-edge"/>
+    <line x1="930" y1="504" x2="776" y2="574" class="strong-edge"/>
+    <line x1="930" y1="504" x2="654" y2="492" class="mid-edge"/>
+    <line x1="776" y1="574" x2="654" y2="492" class="faint-edge"/>
+
+    <circle cx="662" cy="344" r="33" class="node"/><text x="662" y="344" class="node-label">C1</text>
+    <circle cx="800" cy="258" r="33" class="node"/><text x="800" y="258" class="node-label">C2</text>
+    <circle cx="938" cy="332" r="33" class="node"/><text x="938" y="332" class="node-label">C3</text>
+    <circle cx="930" cy="504" r="33" class="node"/><text x="930" y="504" class="node-label">C4</text>
+    <circle cx="776" cy="574" r="33" class="node"/><text x="776" y="574" class="node-label">C5</text>
+    <circle cx="654" cy="492" r="33" class="node"/><text x="654" y="492" class="node-label">C6</text>
+  </g>
+
+  <g transform="translate(642 654)">
+    <line x1="0" y1="0" x2="72" y2="0" class="faint-edge"/>
+    <text x="86" y="7" class="copy">weak</text>
+    <line x1="190" y1="0" x2="262" y2="0" class="mid-edge"/>
+    <text x="276" y="7" class="copy">candidate</text>
+    <line x1="418" y1="0" x2="490" y2="0" class="strong-edge"/>
+    <text x="504" y="7" class="copy">relevant</text>
+  </g>
+
+  <path d="M996 414H1090" stroke="#4d669b" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <g aria-label="Pruned retrieval path">
+    <path d="M1190 420C1270 290 1400 284 1492 382" fill="none" class="strong-edge"/>
+    <path d="M1492 382C1456 516 1350 570 1212 546" fill="none" class="strong-edge"/>
+    <path d="M1212 546C1168 516 1154 468 1190 420" fill="none" class="strong-edge"/>
+
+    <circle cx="1190" cy="420" r="46" class="node"/><text x="1190" y="420" class="node-label">C1</text>
+    <circle cx="1492" cy="382" r="46" class="node"/><text x="1492" y="382" class="node-label">C3</text>
+    <circle cx="1212" cy="546" r="46" class="node"/><text x="1212" y="546" class="node-label">C5</text>
+
+    <circle cx="1360" cy="484" r="28" class="node-muted"/><text x="1360" y="484" class="node-label">C4</text>
+    <circle cx="1430" cy="604" r="28" class="node-muted"/><text x="1430" y="604" class="node-label">C6</text>
+  </g>
+
+  <rect x="1140" y="678" width="392" height="70" rx="12" fill="#edf1f8"/>
+  <text x="1170" y="721" class="copy">Query-conditioned evidence path</text>
+</svg>

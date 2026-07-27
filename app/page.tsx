@@ -7,15 +7,18 @@ import {
 } from "./components/ResearchFieldSelector";
 import { ResearchTrace } from "./components/ResearchTrace";
 import { ThemeToggle } from "./components/ThemeToggle";
+import { PublicationList } from "./components/PublicationList";
+import { publications } from "./data/publications";
 
 const researchAreas: ResearchArea[] = [
   {
     code: "AI4S",
     title: "AI for Science",
     description:
-      "I study research agents that help formulate questions, assemble evidence, test intermediate claims, and carry investigations forward across iterative scientific workflows.",
+      "I design research agents and workflow infrastructure that help formulate questions, assemble evidence, test intermediate claims, and carry inquiry forward.",
     questions: [
       "Research agents",
+      "Workflow infrastructure",
       "Evidence synthesis & inquiry",
     ],
   },
@@ -23,69 +26,25 @@ const researchAreas: ResearchArea[] = [
     code: "MAS",
     title: "Multi-Agent Systems",
     description:
-      "I study how specialized agents share evidence, divide work, resolve disagreement, and coordinate long-horizon reasoning in research and other knowledge-intensive settings.",
+      "I study how specialized agents divide work, share evidence, resolve disagreement, and coordinate long-horizon reasoning.",
     questions: [
       "Agent coordination",
       "Shared memory & critique",
+      "Orchestration & observability",
     ],
   },
   {
     code: "IR",
     title: "RAG & Generative Retrieval",
     description:
-      "I build retrieval systems that connect generative models with structured, attributable evidence through entity- and relationship-aware representations.",
+      "I build retrieval systems that connect generative models to compact, attributable evidence through entity- and relationship-aware representations.",
     questions: [
+      "Evidence-centered retrieval",
       "Grounded generation",
       "Generative retrieval",
     ],
   },
 ];
-
-const selectedWorks = [
-  {
-    year: "2025",
-    status: "PREPRINT",
-    area: "RAG",
-    title: "SlimRAG: Retrieval without Graphs via Entity-Aware Context Selection",
-    authors:
-      "Jiale Zhang, Jiaxiang Chen, Zhucong Li, Jie Ding, Kui Zhao, Zenglin Xu, Xin Pang, Yinghui Xu",
-    venue: "arXiv · 2025",
-    href: "https://arxiv.org/abs/2506.17288",
-  },
-  {
-    year: "2025",
-    status: "CONFERENCE",
-    area: "RAG / RETRIEVAL",
-    title:
-      "ChunkGraph: Relationship-Driven Retrieval Through Progressive Complete Graphs",
-    authors: "Jiale Zhang, Kui Zhao, Hao Zhang, Fuzhe Zhang, Xu Liu",
-    venue: "IEEE ICCC · 2025",
-    href: "https://doi.org/10.1109/ICCC68654.2025.11438132",
-  },
-  {
-    year: "2025",
-    status: "ACL DEMO",
-    area: "AGENT SYSTEMS",
-    title:
-      "AI2Agent: An End-to-End Framework for Deploying AI Projects as Autonomous Agents",
-    authors:
-      "Jiaxiang Chen, Jingwei Shi, Lei Gan, Jiale Zhang, Qingyu Zhang, Dongqian Zhang, Xin Pang, Zhucong Li, Yinghui Xu",
-    venue: "ACL System Demonstrations · 2025",
-    href: "https://aclanthology.org/2025.acl-demo.51/",
-  },
-];
-
-function Authors({ names }: { names: string }) {
-  const parts = names.split("Jiale Zhang");
-
-  return (
-    <>
-      {parts[0]}
-      <strong className="self-author">Jiale Zhang</strong>
-      {parts[1]}
-    </>
-  );
-}
 
 export default function Home() {
   return (
@@ -142,14 +101,24 @@ export default function Home() {
                 Publications
                 <span aria-hidden="true">↘</span>
               </a>
-              <a
-                className="quiet-link"
-                href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Google Scholar ↗
-              </a>
+              <div className="hero-resource-links">
+                <a
+                  className="quiet-link"
+                  href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Google Scholar ↗
+                </a>
+                <a
+                  className="quiet-link"
+                  href="/jiale-zhang-academic-cv.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Academic CV ↗
+                </a>
+              </div>
             </div>
           </div>
 
@@ -210,37 +179,7 @@ export default function Home() {
               <p>Peer-reviewed papers and preprints.</p>
             </div>
 
-            <div className="publication-list">
-              {selectedWorks.map((work, index) => (
-                <a
-                  className="publication-row"
-                  key={work.title}
-                  href={work.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  data-research-mode={
-                    work.area.includes("AGENT SYSTEMS") ? "MAS" : "RAG"
-                  }
-                >
-                  <span className="publication-index">0{index + 1}</span>
-                  <div className="publication-meta">
-                    <span>{work.year}</span>
-                    <span>{work.status}</span>
-                    <span>{work.area}</span>
-                  </div>
-                  <div className="publication-main">
-                    <h3>{work.title}</h3>
-                    <p>
-                      <Authors names={work.authors} />
-                    </p>
-                  </div>
-                  <span className="publication-venue">{work.venue}</span>
-                  <span className="publication-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                </a>
-              ))}
-            </div>
+            <PublicationList works={publications} />
 
             <a
               className="scholar-link"
@@ -263,14 +202,13 @@ export default function Home() {
 
           <div className="research-intro">
             <h2 data-reveal>
-              <span>AI as part of the</span>
-              <em>scientific method.</em>
+              <span>From grounded evidence</span>
+              <em>to evolving inquiry.</em>
             </h2>
             <p data-reveal>
-              I study how AI systems can search, synthesize, and act on
-              evidence across iterative research workflows. The goal is not to
-              automate one scientific domain, but to build general
-              infrastructure for inquiry.
+              Retrieval grounds the system. Agents extend it through
+              coordination. AI for Science turns both into an iterative
+              research methodology.
             </p>
           </div>
 
@@ -378,6 +316,13 @@ export default function Home() {
                 rel="noreferrer"
               >
                 GitHub profile
+              </a>
+              <a
+                href="/jiale-zhang-academic-cv.pdf"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Academic CV
               </a>
             </div>
           </div>

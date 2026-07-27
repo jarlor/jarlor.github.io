@@ -23,7 +23,7 @@ type Ripple = {
   life: number;
 };
 
-const modes: ModeId[] = ["AI4S", "MAS", "RAG"];
+const modes: ModeId[] = ["AI4S", "RAG", "MAS"];
 const modeDurations: Record<ModeId, number> = {
   AI4S: 6800,
   MAS: 5000,
