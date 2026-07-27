@@ -67,6 +67,7 @@ export function ResearchTrace() {
   const transitionCanvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number | null>(null);
   const manualPauseRef = useRef(0);
+  const autoRotationEnabledRef = useRef(true);
   const modeIndexRef = useRef(0);
   const hasTransitionedRef = useRef(false);
   const [modeIndex, setModeIndex] = useState(0);
@@ -102,34 +103,69 @@ export function ResearchTrace() {
   );
 
   useEffect(() => {
+    const root = document.documentElement;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
     const handleFieldSelect = (event: Event) => {
       const mode = (event as CustomEvent<{ mode?: ModeId }>).detail?.mode;
       if (!mode) return;
       const nextIndex = modes.indexOf(mode);
       if (nextIndex >= 0) {
         manualPauseRef.current = 1;
+        root.dataset.researchInteraction = "manual";
         transitionToMode(nextIndex);
       }
     };
 
     let rotationTimer: number;
     const scheduleRotation = () => {
+      if (reducedMotion) return;
       const currentMode = modes[modeIndexRef.current];
       rotationTimer = window.setTimeout(() => {
+        if (!autoRotationEnabledRef.current) {
+          scheduleRotation();
+          return;
+        }
         if (manualPauseRef.current > 0) {
           manualPauseRef.current -= 1;
           scheduleRotation();
           return;
         }
+        root.dataset.researchInteraction = "auto";
         transitionToMode((modeIndexRef.current + 1) % modes.length);
         scheduleRotation();
       }, modeDurations[currentMode]);
     };
 
+    root.dataset.researchInteraction = "auto";
+    const visibleRegions = new Map<Element, boolean>();
+    const rotationRegions = [
+      document.querySelector(".hero"),
+      document.querySelector("#research"),
+    ].filter((region): region is Element => region !== null);
+    const regionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          visibleRegions.set(entry.target, entry.isIntersecting);
+        });
+        autoRotationEnabledRef.current = Array.from(
+          visibleRegions.values(),
+        ).some(Boolean);
+      },
+      { threshold: 0.08 },
+    );
+    rotationRegions.forEach((region) => {
+      visibleRegions.set(region, false);
+      regionObserver.observe(region);
+    });
+
     scheduleRotation();
     window.addEventListener("research-field-select", handleFieldSelect);
     return () => {
       window.clearTimeout(rotationTimer);
+      regionObserver.disconnect();
       window.removeEventListener("research-field-select", handleFieldSelect);
     };
   }, [transitionToMode]);

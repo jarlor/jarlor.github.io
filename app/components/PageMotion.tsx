@@ -141,7 +141,7 @@ export function PageMotion() {
       );
 
       gsap.fromTo(
-        ".portrait img",
+        ".portrait",
         { scale: 0.88, opacity: 0.42 },
         {
           scale: 1,
@@ -159,7 +159,7 @@ export function PageMotion() {
 
     media.add("(prefers-reduced-motion: reduce)", () => {
       gsap.set("[data-reveal]", { autoAlpha: 1, y: 0 });
-      gsap.set(".research-intro h2, .portrait img", {
+      gsap.set(".research-intro h2, .portrait", {
         opacity: 1,
         y: 0,
         scale: 1,

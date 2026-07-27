@@ -19,8 +19,8 @@ export function PortraitToggle() {
     >
       <span className="hero-portrait-frame" aria-hidden="true">
         <Image
-          className={isPortrait ? "is-visible" : ""}
-          src="/jiale-zhang.jpg"
+          className={`hero-portrait-primary ${isPortrait ? "is-visible" : ""}`}
+          src="/jiale-zhang-dark.jpg"
           alt=""
           fill
           sizes="(max-width: 680px) 58vw, 220px"
@@ -28,7 +28,7 @@ export function PortraitToggle() {
           unoptimized
         />
         <Image
-          className={!isPortrait ? "is-visible" : ""}
+          className={`hero-github-avatar ${!isPortrait ? "is-visible" : ""}`}
           src="/jarlor-github-avatar.jpg"
           alt=""
           fill
@@ -37,9 +37,9 @@ export function PortraitToggle() {
           unoptimized
         />
       </span>
-      <span className="hero-portrait-caption" aria-live="polite">
+      <span className="hero-portrait-caption">
         <span>{isPortrait ? "Portrait" : "GitHub avatar"}</span>
-        <strong>Click to switch</strong>
+        <strong>Switch ↻</strong>
       </span>
     </button>
   );

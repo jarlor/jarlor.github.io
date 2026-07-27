@@ -13,20 +13,20 @@ const researchAreas: ResearchArea[] = [
     code: "AI4S",
     title: "AI for Science",
     description:
-      "I design AI-native workflows that support literature synthesis, question formulation, iterative investigation, and scientific decision-making across domains.",
+      "I study research agents that help formulate questions, assemble evidence, test intermediate claims, and carry investigations forward across iterative scientific workflows.",
     questions: [
       "Research agents",
-      "Evidence-to-insight workflows",
+      "Evidence synthesis & inquiry",
     ],
   },
   {
     code: "MAS",
     title: "Multi-Agent Systems",
     description:
-      "I study how specialized agents share context, divide work, and coordinate long-horizon reasoning in research and other knowledge-intensive settings.",
+      "I study how specialized agents share evidence, divide work, resolve disagreement, and coordinate long-horizon reasoning in research and other knowledge-intensive settings.",
     questions: [
       "Agent coordination",
-      "Collective reasoning",
+      "Shared memory & critique",
     ],
   },
   {
@@ -89,25 +89,29 @@ function Authors({ names }: { names: string }) {
 
 export default function Home() {
   return (
-    <main>
-        <PageMotion />
-        <div className="scroll-meter" aria-hidden="true" />
+    <>
+      <PageMotion />
+      <div className="scroll-meter" aria-hidden="true" />
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
 
-        <header className="site-header">
-          <nav className="site-nav" aria-label="Main navigation">
-            <a href="#research">Research</a>
-            <a href="#publications">Publications</a>
-            <a href="#about">About</a>
-          </nav>
+      <header className="site-header">
+        <nav className="site-nav" aria-label="Main navigation">
+          <a href="#publications">Publications</a>
+          <a href="#research">Research</a>
+          <a href="#about">About</a>
+        </nav>
 
-          <div className="header-actions">
-            <ThemeToggle />
-            <a className="contact-link" href="#contact">
-              Contact <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-        </header>
+        <div className="header-actions">
+          <ThemeToggle />
+          <a className="contact-link" href="#contact">
+            Contact <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </header>
 
+      <main id="main-content">
         <section className="hero" id="top">
           <ResearchTrace />
           <div className="hero-main">
@@ -121,8 +125,10 @@ export default function Home() {
             </h1>
 
             <p className="hero-thesis">
-              I build AI-native systems for{" "}
-              <span className="typed-line" aria-live="polite">
+              <span className="hero-thesis-prefix">
+                I build AI-native systems for
+              </span>{" "}
+              <span className="typed-line">
                 <span
                   data-phrases="scientific inquiry.|multi-agent collaboration.|evidence-grounded generation."
                 >
@@ -147,7 +153,7 @@ export default function Home() {
             </div>
           </div>
 
-        <aside className="hero-profile" aria-label="Current research focus">
+          <aside className="hero-profile" aria-label="Academic profile">
             <div className="hero-focus-layout">
               <PortraitToggle />
               <dl className="hero-facts">
@@ -166,8 +172,12 @@ export default function Home() {
                 <div className="hero-facts-email">
                   <dt>Email</dt>
                   <dd>
-                    <a href="mailto:jarlor@foxmail.com">jarlor@foxmail.com</a>
+                    <a href="mailto:jarlor@foxmail.com">
+                      <span>Personal</span>
+                      jarlor@foxmail.com
+                    </a>
                     <a href="mailto:zhangjiale23@mails.ucas.ac.cn">
+                      <span>Academic</span>
                       zhangjiale23@mails.ucas.ac.cn
                     </a>
                   </dd>
@@ -175,199 +185,208 @@ export default function Home() {
               </dl>
               <div className="hero-current-focus" data-research-mode="AI4S">
                 <span>Current focus / AI for Science</span>
-                <h2>AI-native research workflows</h2>
+                <h2>Reshaping scientific inquiry</h2>
                 <p>
-                  Studying how agentic systems support evidence search,
-                  synthesis, iterative analysis, and scientific
-                  decision-making.
+                  I build agentic systems that reshape how questions are
+                  formed, evidence is organized, and investigations evolve.
                 </p>
                 <a href="#research">
                   Research agenda <span aria-hidden="true">↘</span>
                 </a>
               </div>
             </div>
-        </aside>
-      </section>
-
-      <section className="research section-shell" id="research">
-        <div className="section-label" data-reveal>
-          <span>Research agenda</span>
-          <span>研究方向</span>
-        </div>
-
-        <div className="research-intro">
-          <h2 data-reveal>
-            <span>AI as part of the</span>
-            <em>scientific method.</em>
-          </h2>
-          <p data-reveal>
-            My work explores how AI can organize evidence, coordinate inquiry,
-            and participate in the research process itself—not as a model for
-            one narrow scientific domain, but as infrastructure for research.
-          </p>
-        </div>
-
-        <ResearchFieldSelector areas={researchAreas} />
-      </section>
-
-      <section className="publications" id="publications">
-        <div className="section-shell">
-          <div className="section-label section-label-dark" data-reveal>
-            <span>Selected publications</span>
-            <span>论文</span>
-          </div>
-
-          <div className="publication-heading" data-reveal>
-            <h2>Publications.</h2>
-            <p>Selected peer-reviewed papers and preprints.</p>
-          </div>
-
-          <div className="publication-list">
-            {selectedWorks.map((work, index) => (
-              <a
-                className="publication-row"
-                key={work.title}
-                href={work.href}
-                target="_blank"
-                rel="noreferrer"
-                data-research-mode={
-                  work.area.includes("AGENT SYSTEMS") ? "MAS" : "RAG"
-                }
-              >
-                <span className="publication-index">0{index + 1}</span>
-                <div className="publication-meta">
-                  <span>{work.year}</span>
-                  <span>{work.status}</span>
-                  <span>{work.area}</span>
-                </div>
-                <div className="publication-main">
-                  <h3>{work.title}</h3>
-                  <p>
-                    <Authors names={work.authors} />
-                  </p>
-                </div>
-                <span className="publication-venue">{work.venue}</span>
-                <span className="publication-arrow" aria-hidden="true">
-                  ↗
-                </span>
-              </a>
-            ))}
-          </div>
-
-          <a
-            className="scholar-link"
-            href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
-            target="_blank"
-            rel="noreferrer"
-            data-reveal
-          >
-            View the complete record on Google Scholar
-            <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </section>
-
-      <section className="about section-shell" id="about">
-        <div className="section-label" data-reveal>
-          <span>Profile</span>
-          <span>个人简介</span>
-        </div>
-
-        <div className="about-layout">
-          <aside className="profile-plate" data-reveal>
-            <div className="portrait">
-              <Image
-                src="/jiale-zhang.jpg"
-                alt="Portrait of Jiale Zhang"
-                width={1086}
-                height={1448}
-                unoptimized
-              />
-            </div>
           </aside>
+        </section>
 
-          <div className="about-copy" data-reveal>
-            <div className="about-heading about-heading-simple">
-              <h2>About.</h2>
-            </div>
-            <p className="about-lead">
-              Known online as <em>Jarlor</em>, I care about research systems
-              that are not only capable, but legible, maintainable, and useful
-              over long horizons.
-            </p>
-            <div className="about-columns">
-              <p>
-                My current work centers on AI for Science at the level of
-                research methodology: systems that augment how research is
-                organized, conducted, and evaluated.
-              </p>
-              <p>
-                I am especially interested in connecting evidence access,
-                agentic coordination, and executable workflows into research
-                systems that can improve through use.
-              </p>
+        <section className="publications" id="publications">
+          <div className="section-shell">
+            <div className="section-label section-label-dark" data-reveal>
+              <span>Research record</span>
+              <span>01 / 04</span>
             </div>
 
-            <div className="education-list">
-              <div>
-                <span>PRESENT</span>
-                <p>
-                  <strong>Ph.D. Candidate in Computer Science</strong>
-                  Fudan University · Shanghai
-                </p>
-              </div>
-              <div>
-                <span>2023—2026</span>
-                <p>
-                  <strong>Master&apos;s in Computer Technology</strong>
-                  University of Chinese Academy of Sciences · Shenyang
-                  Institute of Computing Technology
-                </p>
-              </div>
+            <div className="publication-heading" data-reveal>
+              <h2>Publications.</h2>
+              <p>Peer-reviewed papers and preprints.</p>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="contact" id="contact">
-        <div className="contact-grid" aria-hidden="true" />
-        <div className="contact-inner section-shell" data-reveal>
-          <p className="eyebrow eyebrow-light">
-            Open to research conversations
-          </p>
-          <h2>
-            Questions are better
-            <em> when shared.</em>
-          </h2>
-          <a
-            className="email-link"
-            href="mailto:jarlor@foxmail.com"
-          >
-            jarlor@foxmail.com
-            <span aria-hidden="true">↗</span>
-          </a>
-          <div className="social-links">
+            <div className="publication-list">
+              {selectedWorks.map((work, index) => (
+                <a
+                  className="publication-row"
+                  key={work.title}
+                  href={work.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-research-mode={
+                    work.area.includes("AGENT SYSTEMS") ? "MAS" : "RAG"
+                  }
+                >
+                  <span className="publication-index">0{index + 1}</span>
+                  <div className="publication-meta">
+                    <span>{work.year}</span>
+                    <span>{work.status}</span>
+                    <span>{work.area}</span>
+                  </div>
+                  <div className="publication-main">
+                    <h3>{work.title}</h3>
+                    <p>
+                      <Authors names={work.authors} />
+                    </p>
+                  </div>
+                  <span className="publication-venue">{work.venue}</span>
+                  <span className="publication-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </a>
+              ))}
+            </div>
+
             <a
+              className="scholar-link"
               href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
               target="_blank"
               rel="noreferrer"
+              data-reveal
             >
-              Google Scholar
-            </a>
-            <a
-              href="https://github.com/jarlor"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub profile
+              View the complete record on Google Scholar
+              <span aria-hidden="true">↗</span>
             </a>
           </div>
-        </div>
-        <footer>
-          <span>© 2026 Jiale Zhang</span>
-          <span>Ethically aligned. Probably.</span>
-        </footer>
         </section>
-    </main>
+
+        <section className="research section-shell" id="research">
+          <div className="section-label" data-reveal>
+            <span>Research agenda</span>
+            <span>02 / 04</span>
+          </div>
+
+          <div className="research-intro">
+            <h2 data-reveal>
+              <span>AI as part of the</span>
+              <em>scientific method.</em>
+            </h2>
+            <p data-reveal>
+              I study how AI systems can search, synthesize, and act on
+              evidence across iterative research workflows. The goal is not to
+              automate one scientific domain, but to build general
+              infrastructure for inquiry.
+            </p>
+          </div>
+
+          <ResearchFieldSelector areas={researchAreas} />
+        </section>
+
+        <section className="about section-shell" id="about">
+          <div className="section-label" data-reveal>
+            <span>Profile</span>
+            <span>03 / 04</span>
+          </div>
+
+          <div className="about-layout">
+            <aside className="profile-plate" data-reveal>
+              <div className="portrait">
+                <Image
+                  src="/jiale-zhang-dark.jpg"
+                  alt="Portrait of Jiale Zhang"
+                  width={768}
+                  height={1024}
+                  unoptimized
+                />
+              </div>
+            </aside>
+
+            <div className="about-copy" data-reveal>
+              <div className="about-heading about-heading-simple">
+                <h2>About.</h2>
+              </div>
+              <p className="about-lead">
+                My research examines how AI can participate in scientific
+                inquiry while keeping <em>evidence</em>, reasoning, and
+                responsibility visible.
+              </p>
+              <div className="about-columns">
+                <p>
+                  I approach AI for Science as a problem of research
+                  methodology: supporting how questions are formed, evidence
+                  is gathered, and investigations are iterated across domains.
+                </p>
+                <p>
+                  My earlier work on retrieval and agent systems now informs a
+                  broader agenda around transparent, evidence-aware research
+                  workflows.
+                </p>
+              </div>
+
+              <div className="education-list">
+                <div>
+                  <span>PRESENT</span>
+                  <p>
+                    <strong>Ph.D. Candidate in Computer Science</strong>
+                    Fudan University · Shanghai
+                  </p>
+                </div>
+                <div>
+                  <span>2023-2026</span>
+                  <p>
+                    <strong>Master&apos;s in Computer Technology</strong>
+                    University of Chinese Academy of Sciences · Shenyang
+                    Institute of Computing Technology
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="contact" id="contact">
+          <div className="contact-grid" aria-hidden="true" />
+          <div className="contact-inner section-shell" data-reveal>
+            <p className="eyebrow eyebrow-light">Research & collaboration</p>
+            <h2>
+              Research conversations
+              <em> are welcome.</em>
+            </h2>
+            <div className="contact-emails">
+              <a className="email-link" href="mailto:jarlor@foxmail.com">
+                <span className="email-kind">Personal</span>
+                <span className="email-address">jarlor@foxmail.com</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+              <a
+                className="email-link"
+                href="mailto:zhangjiale23@mails.ucas.ac.cn"
+              >
+                <span className="email-kind">Academic</span>
+                <span className="email-address">
+                  zhangjiale23@mails.ucas.ac.cn
+                </span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+            <div className="social-links">
+              <a
+                href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Google Scholar
+              </a>
+              <a
+                href="https://github.com/jarlor"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub profile
+              </a>
+            </div>
+          </div>
+          <footer>
+            <span>© 2026 Jiale Zhang</span>
+            <span>Shanghai · China</span>
+          </footer>
+        </section>
+      </main>
+    </>
   );
 }

@@ -21,15 +21,15 @@ const plexMono = IBM_Plex_Mono({
 
 const title = "Jiale Zhang - Ph.D. Candidate at Fudan University";
 const description =
-  "Personal research homepage of a computer science Ph.D. candidate at Fudan University, working on multi-agent systems, AI for Science, RAG, and generative retrieval.";
+  "Personal research homepage of a computer science Ph.D. candidate at Fudan University, working on AI for Science, multi-agent systems, RAG, and generative retrieval.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://jarlor.github.io"),
   title,
   description,
   icons: {
-    icon: "/jiale-zhang.jpg",
-    apple: "/jiale-zhang.jpg",
+    icon: "/jiale-zhang-dark.jpg",
+    apple: "/jiale-zhang-dark.jpg",
   },
   openGraph: {
     title,
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
         url: "/og-jiale.png",
         width: 1200,
         height: 630,
-        alt: "Research profile for Jiale Zhang",
+        alt: "Jiale Zhang, Ph.D. Candidate at Fudan University",
       },
     ],
   },
@@ -66,9 +66,20 @@ export default function RootLayout({
           ? savedTheme
           : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
         document.documentElement.dataset.theme = theme;
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute("content", theme === "dark" ? "#0d171e" : "#f8fafb");
       } catch (error) {
-        document.documentElement.dataset.theme =
-          window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        var fallbackTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+        document.documentElement.dataset.theme = fallbackTheme;
+        document
+          .querySelector('meta[name="theme-color"]')
+          ?.setAttribute(
+            "content",
+            fallbackTheme === "dark" ? "#0d171e" : "#f8fafb",
+          );
       }
     })();
   `;
@@ -76,6 +87,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" content="#f8fafb" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body

@@ -51,34 +51,34 @@ export function ResearchFieldSelector({
         const isActive = activeMode === mode;
 
         return (
-          <article
+          <button
             className={`research-card${isActive ? " is-canvas-related" : ""}`}
             key={area.code}
-            role="button"
-            tabIndex={0}
+            type="button"
             aria-pressed={isActive}
             data-research-mode={mode}
             data-field-tone={mode}
             data-reveal
             onClick={() => selectField(mode)}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              selectField(mode);
-            }}
           >
-            <header>
+            <span className="research-card-head">
               <span className="area-number">0{index + 1}</span>
               <span className="area-code">{area.code}</span>
-            </header>
-            <h3>{area.title}</h3>
-            <p>{area.description}</p>
-            <ul>
+            </span>
+            <span className="research-card-title" role="heading" aria-level={3}>
+              {area.title}
+            </span>
+            <span className="research-card-description">
+              {area.description}
+            </span>
+            <span className="research-card-list">
               {area.questions.map((question) => (
-                <li key={question}>{question}</li>
+                <span className="research-card-topic" key={question}>
+                  {question}
+                </span>
               ))}
-            </ul>
-          </article>
+            </span>
+          </button>
         );
       })}
     </div>

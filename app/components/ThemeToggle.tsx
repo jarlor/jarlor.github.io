@@ -13,14 +13,19 @@ function currentTheme(): Theme {
   return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
 }
 
+function applyTheme(theme: Theme) {
+  document.documentElement.dataset.theme = theme;
+  document
+    .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    ?.setAttribute("content", theme === "dark" ? "#0d171e" : "#f8fafb");
+}
+
 function subscribe(onChange: () => void) {
   const systemTheme = window.matchMedia(systemThemeQuery);
 
   const handleSystemTheme = () => {
     if (window.localStorage.getItem(storageKey)) return;
-    document.documentElement.dataset.theme = systemTheme.matches
-      ? "dark"
-      : "light";
+    applyTheme(systemTheme.matches ? "dark" : "light");
     onChange();
   };
 
@@ -39,7 +44,7 @@ export function ThemeToggle() {
 
   const toggleTheme = () => {
     const commitTheme = () => {
-      document.documentElement.dataset.theme = nextTheme;
+      applyTheme(nextTheme);
       window.localStorage.setItem(storageKey, nextTheme);
       window.dispatchEvent(new Event(themeEvent));
     };
