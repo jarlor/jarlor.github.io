@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .surface {
+      fill: #f8fafb;
+      stroke: #b8c6ce;
+    }
+
+    .monogram {
+      stroke: #0d171e;
+    }
+
+    .period {
+      fill: #287c78;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .surface {
+        fill: #0d171e;
+        stroke: #344852;
+      }
+
+      .monogram {
+        stroke: #e8eef1;
+      }
+
+      .period {
+        fill: #79c9c0;
+      }
+    }
+  </style>
+
+  <rect
+    class="surface"
+    x="2.5"
+    y="2.5"
+    width="59"
+    height="59"
+    rx="13.5"
+    stroke-width="3"
+  />
+  <path
+    class="monogram"
+    d="M18 17H42V35.5C42 44.5 36.8 49 28.8 49C22 49 17.8 45.6 16 40.2"
+    fill="none"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="6"
+  />
+  <circle class="period" cx="48" cy="48" r="3.5" />
+</svg>
