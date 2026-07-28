@@ -33,8 +33,8 @@ const systemLayers: Record<
     level: "Coordination layer",
   },
   AI4S: {
-    action: "Investigate",
-    level: "Scientific inquiry",
+    action: "Model",
+    level: "Research process",
   },
 };
 

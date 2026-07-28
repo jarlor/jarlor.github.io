@@ -14,11 +14,11 @@ const researchAreas: ResearchArea[] = [
     code: "AI4S",
     title: "AI for Science",
     description:
-      "I design research agents and workflow infrastructure that help formulate questions, assemble evidence, test intermediate claims, and carry inquiry forward.",
+      "I model AI-assisted research as executable state transitions that connect intent, experiments, evidence, and provenance across branching lines of inquiry.",
     questions: [
-      "Research agents",
-      "Workflow infrastructure",
-      "Evidence synthesis & inquiry",
+      "Research process modeling",
+      "Executable research states",
+      "Provenance & research handoff",
     ],
   },
   {
@@ -167,11 +167,11 @@ export default function Home() {
               </dl>
               <div className="hero-current-focus" data-research-mode="AI4S">
                 <span>Current research: AI for Science</span>
-                <h2>AI-Enabled Scientific Inquiry</h2>
+                <h2>Research Process Modeling</h2>
                 <p>
-                  I develop research agents and workflow infrastructure for
-                  question formulation, evidence synthesis, and iterative
-                  scientific inquiry.
+                  I study executable representations of AI-assisted research
+                  that link intent, execution, evidence, and provenance across
+                  evolving research states.
                 </p>
                 <a href="#research">
                   Explore research <span aria-hidden="true">↘</span>
@@ -217,13 +217,14 @@ export default function Home() {
           <div className="research-composition">
             <div className="research-intro">
               <h2 data-reveal>
-                <span>From Evidence</span>
-                <em>to Coordinated Scientific Inquiry.</em>
+                <span>Beyond Deliverables:</span>
+                <em>Modeling the Research Process.</em>
               </h2>
               <p data-reveal>
-                Retrieval grounds evidence. Agents coordinate reasoning.
-                Together, they support scientific inquiry as an inspectable,
-                iterative process.
+                Retrieval grounds evidence. Agents coordinate work. Process
+                models connect intent, execution, evidence, and state changes
+                into research paths that can be inspected, verified, branched,
+                and continued.
               </p>
             </div>
 
@@ -235,8 +236,8 @@ export default function Home() {
           <div className="contact-grid" aria-hidden="true" />
           <div className="contact-inner section-shell" data-reveal>
             <h2>
-              I welcome research conversations
-              <em> and collaboration.</em>
+              Open to Research
+              <em> Collaborations.</em>
             </h2>
             <div className="contact-emails">
               <a className="email-link" href="mailto:jarlor@foxmail.com">
