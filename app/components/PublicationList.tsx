@@ -64,7 +64,7 @@ export function PublicationList({
               className="publication-row-hit"
               type="button"
               onClick={() => openWork(work)}
-              aria-label={`Browse ${work.title}`}
+              aria-label={`View details for ${work.title}`}
             />
             <div className="publication-row">
               <span className="publication-index">0{index + 1}</span>
@@ -163,7 +163,7 @@ export function PublicationList({
             <div className="paper-viewer-layout">
               <aside className="paper-viewer-copy">
                 <section>
-                  <span>In one sentence</span>
+                  <span>Summary</span>
                   <p className="paper-viewer-deck">{selectedWork.summary}</p>
                 </section>
                 <section>

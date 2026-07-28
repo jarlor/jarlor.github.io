@@ -15,6 +15,7 @@ const modeForArea = (area: ResearchArea): ModeId =>
   area.code === "IR" ? "RAG" : area.code;
 
 const systemOrder: ModeId[] = ["RAG", "MAS", "AI4S"];
+const autoRotationDuration = 5600;
 
 const systemLayers: Record<
   ModeId,
@@ -32,8 +33,8 @@ const systemLayers: Record<
     level: "Coordination layer",
   },
   AI4S: {
-    action: "Transform",
-    level: "Inquiry horizon",
+    action: "Investigate",
+    level: "Scientific inquiry",
   },
 };
 
@@ -107,6 +108,7 @@ export function ResearchFieldSelector({
   const [activeMode, setActiveMode] = useState<ModeId>("AI4S");
   const [previewMode, setPreviewMode] = useState<ModeId | null>(null);
   const activeModeRef = useRef<ModeId>("AI4S");
+  const resetRotationRef = useRef<() => void>(() => undefined);
 
   const transitionToMode = useCallback((mode: ModeId) => {
     if (mode === activeModeRef.current) return;
@@ -126,12 +128,85 @@ export function ResearchFieldSelector({
     };
   }, [transitionToMode]);
 
+  useEffect(() => {
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reducedMotion) return;
+
+    let rotationTimer: number | undefined;
+    let rotationEnabled = false;
+    const visibleRegions = new Map<Element, boolean>();
+    const rotationRegions = [
+      document.querySelector(".hero"),
+      document.querySelector("#research"),
+    ].filter((region): region is Element => region !== null);
+
+    const scheduleRotation = () => {
+      if (rotationTimer) window.clearTimeout(rotationTimer);
+      if (!rotationEnabled || document.hidden) return;
+
+      rotationTimer = window.setTimeout(() => {
+        const currentIndex = systemOrder.indexOf(activeModeRef.current);
+        const nextMode =
+          systemOrder[(currentIndex + 1) % systemOrder.length] ?? "AI4S";
+        transitionToMode(nextMode);
+        document.documentElement.dataset.researchInteraction = "auto";
+        window.dispatchEvent(
+          new CustomEvent("research-field-select", {
+            detail: { mode: nextMode, source: "auto" },
+          }),
+        );
+        scheduleRotation();
+      }, autoRotationDuration);
+    };
+    resetRotationRef.current = scheduleRotation;
+
+    const regionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          visibleRegions.set(entry.target, entry.isIntersecting);
+        });
+        const nextRotationEnabled = Array.from(
+          visibleRegions.values(),
+        ).some(Boolean);
+
+        if (rotationEnabled !== nextRotationEnabled) {
+          rotationEnabled = nextRotationEnabled;
+          scheduleRotation();
+        }
+      },
+      { threshold: 0.08 },
+    );
+
+    rotationRegions.forEach((region) => {
+      visibleRegions.set(region, false);
+      regionObserver.observe(region);
+    });
+
+    const handleVisibilityChange = () => scheduleRotation();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      if (rotationTimer) window.clearTimeout(rotationTimer);
+      resetRotationRef.current = () => undefined;
+      regionObserver.disconnect();
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange,
+      );
+    };
+  }, [transitionToMode]);
+
   const selectField = (mode: ModeId) => {
     setPreviewMode(null);
+    resetRotationRef.current();
     if (mode === activeModeRef.current) return;
     transitionToMode(mode);
     window.dispatchEvent(
-      new CustomEvent("research-field-select", { detail: { mode } }),
+      new CustomEvent("research-field-select", {
+        detail: { mode, source: "manual" },
+      }),
     );
   };
 

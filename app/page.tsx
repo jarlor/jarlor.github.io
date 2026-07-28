@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { PageMotion } from "./components/PageMotion";
 import { PortraitToggle } from "./components/PortraitToggle";
 import {
@@ -39,7 +38,7 @@ const researchAreas: ResearchArea[] = [
     description:
       "I build retrieval systems that connect generative models to compact, attributable evidence through entity- and relationship-aware representations.",
     questions: [
-      "Evidence-centered retrieval",
+      "Evidence-grounded retrieval",
       "Grounded generation",
       "Generative retrieval",
     ],
@@ -59,7 +58,6 @@ export default function Home() {
         <nav className="site-nav" aria-label="Main navigation">
           <a href="#publications">Publications</a>
           <a href="#research">Research</a>
-          <a href="#about">About</a>
         </nav>
 
         <div className="header-actions">
@@ -85,11 +83,11 @@ export default function Home() {
 
             <p className="hero-thesis">
               <span className="hero-thesis-prefix">
-                I build AI-native systems for
+                I study and build systems for
               </span>{" "}
               <span className="typed-line">
                 <span
-                  data-phrases="scientific inquiry.|multi-agent collaboration.|evidence-grounded generation."
+                  data-phrases="scientific inquiry.|multi-agent coordination.|evidence-grounded retrieval."
                 >
                   scientific inquiry.
                 </span>
@@ -124,19 +122,34 @@ export default function Home() {
 
           <aside className="hero-profile" aria-label="Academic profile">
             <div className="hero-focus-layout">
-              <PortraitToggle />
+              <div className="hero-profile-overview">
+                <PortraitToggle />
+              </div>
               <dl className="hero-facts">
                 <div>
-                  <dt>Affiliation</dt>
-                  <dd>Fudan University</dd>
-                </div>
-                <div>
-                  <dt>Position</dt>
-                  <dd>Ph.D. Candidate / Computer Science</dd>
-                </div>
-                <div>
-                  <dt>Based in</dt>
+                  <dt>Location</dt>
                   <dd>Shanghai, China</dd>
+                </div>
+                <div className="hero-facts-education">
+                  <dt>Education</dt>
+                  <dd>
+                    <div className="hero-education-entry">
+                      <time dateTime="2026">2026-present</time>
+                      <span>
+                        <strong>Fudan University</strong>
+                        <small>Ph.D. Candidate in Computer Science</small>
+                      </span>
+                    </div>
+                    <div className="hero-education-entry">
+                      <time dateTime="2023/2026">2023-2026</time>
+                      <span>
+                        <strong>
+                          University of Chinese Academy of Sciences
+                        </strong>
+                        <small>Master&apos;s in Computer Technology</small>
+                      </span>
+                    </div>
+                  </dd>
                 </div>
                 <div className="hero-facts-email">
                   <dt>Email</dt>
@@ -153,15 +166,15 @@ export default function Home() {
                 </div>
               </dl>
               <div className="hero-current-focus" data-research-mode="AI4S">
-                <span>Current focus / AI for Science</span>
-                <h2>AI-Native Research</h2>
+                <span>Current research: AI for Science</span>
+                <h2>AI-Enabled Scientific Inquiry</h2>
                 <p>
-                  I design agentic infrastructure that helps formulate
-                  questions, organize evidence, and carry scientific
-                  investigations forward.
+                  I develop research agents and workflow infrastructure for
+                  question formulation, evidence synthesis, and iterative
+                  scientific inquiry.
                 </p>
                 <a href="#research">
-                  Research agenda <span aria-hidden="true">↘</span>
+                  Explore research <span aria-hidden="true">↘</span>
                 </a>
               </div>
             </div>
@@ -172,7 +185,7 @@ export default function Home() {
           <div className="section-shell">
             <div className="section-label section-label-dark" data-reveal>
               <span>Research record</span>
-              <span>01 / 04</span>
+              <span>01 / 03</span>
             </div>
 
             <div className="publication-heading" data-reveal>
@@ -198,19 +211,19 @@ export default function Home() {
         <section className="research section-shell" id="research">
           <div className="section-label" data-reveal>
             <span>Research agenda</span>
-            <span>02 / 04</span>
+            <span>02 / 03</span>
           </div>
 
           <div className="research-composition">
             <div className="research-intro">
               <h2 data-reveal>
                 <span>From Evidence</span>
-                <em>to Systems for Discovery.</em>
+                <em>to Coordinated Scientific Inquiry.</em>
               </h2>
               <p data-reveal>
                 Retrieval grounds evidence. Agents coordinate reasoning.
-                Together, they turn scientific inquiry into an inspectable,
-                iterative system.
+                Together, they support scientific inquiry as an inspectable,
+                iterative process.
               </p>
             </div>
 
@@ -218,75 +231,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="about section-shell" id="about">
-          <div className="section-label" data-reveal>
-            <span>Profile</span>
-            <span>03 / 04</span>
-          </div>
-
-          <div className="about-layout">
-            <aside className="profile-plate" data-reveal>
-              <div className="portrait">
-                <Image
-                  src="/jiale-zhang-dark.jpg"
-                  alt="Portrait of Jiale Zhang"
-                  width={768}
-                  height={1024}
-                  unoptimized
-                />
-              </div>
-            </aside>
-
-            <div className="about-copy" data-reveal>
-              <div className="about-heading about-heading-simple">
-                <h2>About.</h2>
-              </div>
-              <p className="about-lead">
-                My research examines how AI can participate in scientific
-                inquiry while keeping <em>evidence</em>, reasoning, and
-                responsibility visible.
-              </p>
-              <div className="about-columns">
-                <p>
-                  I approach AI for Science as a problem of research
-                  methodology: supporting how questions are formed, evidence
-                  is gathered, and investigations are iterated across domains.
-                </p>
-                <p>
-                  My earlier work on retrieval and agent systems now informs a
-                  broader agenda around transparent, evidence-aware research
-                  workflows.
-                </p>
-              </div>
-
-              <div className="education-list">
-                <div>
-                  <span>PRESENT</span>
-                  <p>
-                    <strong>Ph.D. Candidate in Computer Science</strong>
-                    Fudan University · Shanghai
-                  </p>
-                </div>
-                <div>
-                  <span>2023-2026</span>
-                  <p>
-                    <strong>Master&apos;s in Computer Technology</strong>
-                    University of Chinese Academy of Sciences · Shenyang
-                    Institute of Computing Technology
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="contact" id="contact">
           <div className="contact-grid" aria-hidden="true" />
           <div className="contact-inner section-shell" data-reveal>
-            <p className="eyebrow eyebrow-light">Research & collaboration</p>
             <h2>
-              Research conversations
-              <em> are welcome.</em>
+              I welcome research conversations
+              <em> and collaboration.</em>
             </h2>
             <div className="contact-emails">
               <a className="email-link" href="mailto:jarlor@foxmail.com">
@@ -318,7 +268,7 @@ export default function Home() {
                 target="_blank"
                 rel="noreferrer"
               >
-                GitHub profile
+                GitHub
               </a>
               <a
                 href="/jiale-zhang-academic-cv.pdf"
@@ -331,7 +281,6 @@ export default function Home() {
           </div>
           <footer>
             <span>© 2026 Jiale Zhang</span>
-            <span>Shanghai · China</span>
           </footer>
         </section>
       </main>

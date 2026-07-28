@@ -39,7 +39,7 @@ export const publications = [
     title: "SlimRAG: Retrieval without Graphs via Entity-Aware Context Selection",
     authors:
       "Jiale Zhang, Jiaxiang Chen, Zhucong Li, Jie Ding, Kui Zhao, Zenglin Xu, Xin Pang, Yinghui Xu",
-    venue: "arXiv · 2025",
+    venue: "arXiv",
     summary:
       "SlimRAG replaces graph construction with entity-aware context selection, improving retrieval precision while reducing index and context overhead.",
     abstract:
@@ -118,12 +118,12 @@ export const publications = [
   {
     slug: "chunkgraph",
     year: "2025",
-    status: "CONFERENCE",
-    area: "RAG / RETRIEVAL",
+    status: "CONFERENCE PAPER",
+    area: "RETRIEVAL",
     title:
       "ChunkGraph: Relationship-Driven Retrieval Through Progressive Complete Graphs",
     authors: "Jiale Zhang, Kui Zhao, Hao Zhang, Fuzhe Zhang, Xu Liu",
-    venue: "IEEE ICCC · 2025",
+    venue: "IEEE ICCC",
     summary:
       "ChunkGraph models relationships directly between document chunks, progressively discovering and pruning retrieval paths without entity extraction.",
     abstract:
@@ -177,13 +177,13 @@ export const publications = [
   {
     slug: "ai2agent",
     year: "2025",
-    status: "ACL DEMO",
+    status: "SYSTEM DEMONSTRATION",
     area: "AGENT SYSTEMS",
     title:
       "AI2Agent: An End-to-End Framework for Deploying AI Projects as Autonomous Agents",
     authors:
       "Jiaxiang Chen, Jingwei Shi, Lei Gan, Jiale Zhang, Qingyu Zhang, Dongqian Zhang, Xin Pang, Zhucong Li, Yinghui Xu",
-    venue: "ACL System Demonstrations · 2025",
+    venue: "ACL System Demonstrations",
     summary:
       "AI2Agent turns AI projects into autonomous deployment agents through guideline-driven execution, adaptive debugging, and reusable deployment cases.",
     abstract:

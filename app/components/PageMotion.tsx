@@ -9,8 +9,8 @@ gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const phrases = {
   AI4S: "scientific inquiry.",
-  MAS: "multi-agent collaboration.",
-  RAG: "evidence-grounded generation.",
+  MAS: "multi-agent coordination.",
+  RAG: "evidence-grounded retrieval.",
 } as const;
 
 export function PageMotion() {
@@ -139,30 +139,13 @@ export function PageMotion() {
           },
         },
       );
-
-      gsap.fromTo(
-        ".portrait",
-        { scale: 0.88, opacity: 0.42 },
-        {
-          scale: 1,
-          opacity: 1,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".profile-plate",
-            start: "top bottom",
-            end: "center center",
-            scrub: 0.7,
-          },
-        },
-      );
     });
 
     media.add("(prefers-reduced-motion: reduce)", () => {
       gsap.set("[data-reveal]", { autoAlpha: 1, y: 0 });
-      gsap.set(".research-intro h2, .portrait", {
+      gsap.set(".research-intro h2", {
         opacity: 1,
         y: 0,
-        scale: 1,
       });
     });
 

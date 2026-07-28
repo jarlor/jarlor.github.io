@@ -23,7 +23,7 @@ export function PortraitToggle() {
           src="/jiale-zhang-dark.jpg"
           alt=""
           fill
-          sizes="(max-width: 680px) 58vw, 220px"
+          sizes="(max-width: 680px) 46vw, 188px"
           priority
           unoptimized
         />
@@ -32,7 +32,7 @@ export function PortraitToggle() {
           src="/jarlor-github-avatar.jpg"
           alt=""
           fill
-          sizes="(max-width: 680px) 58vw, 220px"
+          sizes="(max-width: 680px) 46vw, 188px"
           priority
           unoptimized
         />
