@@ -1,49 +1,17 @@
 import { PageMotion } from "./components/PageMotion";
 import { PortraitToggle } from "./components/PortraitToggle";
-import {
-  ResearchFieldSelector,
-  type ResearchArea,
-} from "./components/ResearchFieldSelector";
+import { ResearchFieldSelector } from "./components/ResearchFieldSelector";
 import { ResearchTrace } from "./components/ResearchTrace";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { PublicationList } from "./components/PublicationList";
 import { publications } from "./data/publications";
+import {
+  defaultResearchThemeId,
+  researchThemesById,
+} from "./data/research";
+import { siteProfile } from "./data/site";
 
-const researchAreas: ResearchArea[] = [
-  {
-    code: "AI4S",
-    title: "AI for Science",
-    description:
-      "I model AI-assisted research as executable state transitions that connect intent, experiments, evidence, and provenance across branching lines of inquiry.",
-    questions: [
-      "Research process modeling",
-      "Executable research states",
-      "Provenance & research handoff",
-    ],
-  },
-  {
-    code: "MAS",
-    title: "Multi-Agent Systems",
-    description:
-      "I study how specialized agents divide work, share evidence, resolve disagreement, and coordinate long-horizon reasoning.",
-    questions: [
-      "Agent coordination",
-      "Shared memory & critique",
-      "Orchestration & observability",
-    ],
-  },
-  {
-    code: "IR",
-    title: "RAG & Generative Retrieval",
-    description:
-      "I build retrieval systems that connect generative models to compact, attributable evidence through entity- and relationship-aware representations.",
-    questions: [
-      "Evidence-grounded retrieval",
-      "Grounded generation",
-      "Generative retrieval",
-    ],
-  },
-];
+const defaultResearchTheme = researchThemesById[defaultResearchThemeId];
 
 export default function Home() {
   return (
@@ -55,11 +23,17 @@ export default function Home() {
       </a>
 
       <header className="site-header">
+        <a
+          className="site-name"
+          href="#top"
+          aria-label={`${siteProfile.name}, home`}
+        >
+          {siteProfile.name}
+        </a>
         <nav className="site-nav" aria-label="Main navigation">
-          <a href="#publications">Publications</a>
           <a href="#research">Research</a>
+          <a href="#publications">Publications</a>
         </nav>
-
         <div className="header-actions">
           <ThemeToggle />
           <a className="contact-link" href="#contact">
@@ -72,216 +46,175 @@ export default function Home() {
         <section className="hero" id="top">
           <ResearchTrace />
           <div className="hero-main">
-            <p className="hero-slogan hero-slogan-inline">
-              Ethically aligned. <em>Probably.</em>
+            <div className="hero-name-lockup">
+              <p className="hero-slogan">
+                <strong>{siteProfile.slogan.lead}</strong>{" "}
+                <em>{siteProfile.slogan.aside}</em>
+              </p>
+              <h1 aria-label={siteProfile.name}>
+                <span className="hero-name-given" aria-hidden="true">
+                  {siteProfile.firstName}
+                </span>
+                <span className="hero-name-family" aria-hidden="true">
+                  {siteProfile.lastName}
+                </span>
+              </h1>
+            </div>
+            <p className="hero-research-title">
+              <span>{siteProfile.researchTitle.lead}</span>{" "}
+              <span>{siteProfile.researchTitle.tail}</span>
             </p>
-
-            <h1 aria-label="Jiale Zhang">
-              <span>Jiale</span>
-              <span>Zhang.</span>
-            </h1>
-
-            <p className="hero-thesis">
-              <span className="hero-thesis-prefix">
-                I study and build systems for
-              </span>{" "}
-              <span className="typed-line">
-                <span
-                  data-phrases="scientific inquiry.|multi-agent coordination.|evidence-grounded retrieval."
-                >
-                  scientific inquiry.
+            <p
+              className="hero-thesis"
+              aria-label="I study how execution traces support process representation, how task state can be reconstructed across sessions, and when recorded trajectories can support policy learning."
+            >
+              <span className="hero-thesis-prefix" aria-hidden="true">
+                I study
+              </span>
+              <span className="hero-phrase-window" aria-hidden="true">
+                <span data-phrases>
+                  {defaultResearchTheme.heroPhrase}
                 </span>
               </span>
             </p>
-
-            <div className="hero-actions">
-              <a className="primary-button" href="#publications">
-                Publications
-                <span aria-hidden="true">↘</span>
+            <div className="hero-actions" aria-label="Academic links">
+              <a
+                className="primary-button"
+                href={siteProfile.links.scholar}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Google Scholar <span aria-hidden="true">↗</span>
               </a>
-              <div className="hero-resource-links">
-                <a
-                  className="quiet-link"
-                  href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Google Scholar ↗
-                </a>
-                <a
-                  className="quiet-link"
-                  href="/jiale-zhang-academic-cv.pdf"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Academic CV ↗
-                </a>
-              </div>
+              <a
+                className="quiet-link"
+                href={siteProfile.links.github}
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub ↗
+              </a>
             </div>
           </div>
 
           <aside className="hero-profile" aria-label="Academic profile">
-            <div className="hero-focus-layout">
-              <div className="hero-profile-overview">
-                <PortraitToggle />
+            <PortraitToggle />
+            <dl className="hero-facts">
+              <div>
+                <dt>Status</dt>
+                <dd>
+                  <strong>{siteProfile.position.title}</strong>
+                  <span>{siteProfile.position.detail}</span>
+                </dd>
               </div>
-              <dl className="hero-facts">
-                <div>
-                  <dt>Location</dt>
-                  <dd>Shanghai, China</dd>
-                </div>
-                <div className="hero-facts-education">
-                  <dt>Education</dt>
-                  <dd>
-                    <div className="hero-education-entry">
-                      <time dateTime="2026">2026-present</time>
-                      <span>
-                        <strong>Fudan University</strong>
-                        <small>Ph.D. Candidate in Computer Science</small>
-                      </span>
-                    </div>
-                    <div className="hero-education-entry">
-                      <time dateTime="2023/2026">2023-2026</time>
-                      <span>
-                        <strong>
-                          University of Chinese Academy of Sciences
-                        </strong>
-                        <small>Master&apos;s in Computer Technology</small>
-                      </span>
-                    </div>
-                  </dd>
-                </div>
-                <div className="hero-facts-email">
-                  <dt>Email</dt>
-                  <dd>
-                    <a href="mailto:jarlor@foxmail.com">
-                      <span>Personal</span>
-                      jarlor@foxmail.com
-                    </a>
-                    <a href="mailto:jlzhang26@m.fudan.edu.cn">
-                      <span>Academic</span>
-                      jlzhang26@m.fudan.edu.cn
-                    </a>
-                  </dd>
-                </div>
-              </dl>
-              <div className="hero-current-focus" data-research-mode="AI4S">
-                <span>Current research: AI for Science</span>
-                <h2>Research Process Modeling</h2>
-                <p>
-                  I study executable representations of AI-assisted research
-                  that link intent, execution, evidence, and provenance across
-                  evolving research states.
-                </p>
-                <a href="#research">
-                  Explore research <span aria-hidden="true">↘</span>
-                </a>
+              <div>
+                <dt>Institution</dt>
+                <dd>
+                  <strong>{siteProfile.institution.name}</strong>
+                  <span>{siteProfile.institution.location}</span>
+                </dd>
               </div>
-            </div>
+              <div>
+                <dt>Education</dt>
+                <dd className="education-list">
+                  {siteProfile.education.map((entry) => (
+                    <span key={entry.period}>
+                      <time dateTime={entry.startDate}>{entry.period}</time>
+                      <b>{entry.institution}</b>
+                      <small>{entry.degree}</small>
+                    </span>
+                  ))}
+                </dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd className="profile-emails">
+                  {siteProfile.emails.map((email) => (
+                    <a key={email.address} href={`mailto:${email.address}`}>
+                      {email.address}
+                    </a>
+                  ))}
+                </dd>
+              </div>
+            </dl>
           </aside>
+        </section>
+
+        <section className="research" id="research">
+          <div className="section-shell">
+            <div className="research-intro" data-reveal>
+              <h2>Representing Long-Horizon Agent Interaction</h2>
+              <p>
+                Long scientific workflows outgrow a single context. I study how
+                their traces can support reconstruction, continuation, and
+                later learning.
+              </p>
+            </div>
+            <ResearchFieldSelector />
+          </div>
         </section>
 
         <section className="publications" id="publications">
           <div className="section-shell">
-            <div className="section-label section-label-dark" data-reveal>
-              <span>Research record</span>
-              <span>01 / 03</span>
-            </div>
-
             <div className="publication-heading" data-reveal>
-              <h2>Publications.</h2>
-              <p>Peer-reviewed papers and preprints.</p>
+              <h2>Publications</h2>
+              <p>
+                Previous work in retrieval and agent systems informs this
+                research agenda.
+              </p>
             </div>
 
             <PublicationList works={publications} />
 
             <a
               className="scholar-link"
-              href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
+              href={siteProfile.links.scholar}
               target="_blank"
               rel="noreferrer"
               data-reveal
             >
-              View the complete record on Google Scholar
+              Complete record on Google Scholar
               <span aria-hidden="true">↗</span>
             </a>
           </div>
         </section>
 
-        <section className="research section-shell" id="research">
-          <div className="section-label" data-reveal>
-            <span>Research agenda</span>
-            <span>02 / 03</span>
-          </div>
-
-          <div className="research-composition">
-            <div className="research-intro">
-              <h2 data-reveal>
-                <span>Beyond Deliverables:</span>
-                <em>Modeling the Research Process.</em>
-              </h2>
-              <p data-reveal>
-                Retrieval grounds evidence. Agents coordinate work. Process
-                models connect intent, execution, evidence, and state changes
-                into research paths that can be inspected, verified, branched,
-                and continued.
-              </p>
-            </div>
-
-            <ResearchFieldSelector areas={researchAreas} />
-          </div>
-        </section>
-
         <section className="contact" id="contact">
-          <div className="contact-grid" aria-hidden="true" />
           <div className="contact-inner section-shell" data-reveal>
-            <h2>
-              Open to Research
-              <em> Collaborations.</em>
-            </h2>
+            <h2>Open to Research Collaborations</h2>
+            <p>
+              I welcome discussions on long-horizon agents, process
+              representation, and scientific workflows.
+            </p>
             <div className="contact-emails">
-              <a className="email-link" href="mailto:jarlor@foxmail.com">
-                <span className="email-kind">Personal</span>
-                <span className="email-address">jarlor@foxmail.com</span>
-                <span aria-hidden="true">↗</span>
-              </a>
-              <a
-                className="email-link"
-                href="mailto:jlzhang26@m.fudan.edu.cn"
-              >
-                <span className="email-kind">Academic</span>
-                <span className="email-address">
-                  jlzhang26@m.fudan.edu.cn
-                </span>
-                <span aria-hidden="true">↗</span>
-              </a>
+              {siteProfile.emails.map((email) => (
+                <a key={email.address} href={`mailto:${email.address}`}>
+                  <span>{email.label}</span>
+                  <strong>{email.address}</strong>
+                  <i aria-hidden="true">↗</i>
+                </a>
+              ))}
             </div>
             <div className="social-links">
               <a
-                href="https://scholar.google.com/citations?user=51ZzY0AAAAAJ&hl=en"
+                href={siteProfile.links.scholar}
                 target="_blank"
                 rel="noreferrer"
               >
                 Google Scholar
               </a>
               <a
-                href="https://github.com/jarlor"
+                href={siteProfile.links.github}
                 target="_blank"
                 rel="noreferrer"
               >
                 GitHub
               </a>
-              <a
-                href="/jiale-zhang-academic-cv.pdf"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Academic CV
-              </a>
             </div>
           </div>
-          <footer>
-            <span>© 2026 Jiale Zhang</span>
+          <footer className="section-shell">
+            <span>© 2026 {siteProfile.name}</span>
+            <a href="#top">Back to top ↑</a>
           </footer>
         </section>
       </main>

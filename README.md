@@ -1,8 +1,9 @@
-# Jiale Zhang — Research Homepage
+# Jiale Zhang - Research Homepage
 
-Academic homepage for Jiale Zhang, a computer science Ph.D. candidate at Fudan
-University working on AI for Science, multi-agent systems, RAG, and generative
-retrieval.
+Academic homepage for Jiale Zhang, an incoming Ph.D. student in Computer
+Science at Fudan University. The site presents research on long-horizon LLM
+agents, process representation, task-state reconstruction, and learning from
+recorded agent trajectories.
 
 ## Local development
 

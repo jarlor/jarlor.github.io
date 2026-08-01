@@ -1,12 +1,13 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-
-type Theme = "light" | "dark";
-
-const storageKey = "jarlor-theme";
-const themeEvent = "jarlor-theme-change";
-const systemThemeQuery = "(prefers-color-scheme: dark)";
+import {
+  SYSTEM_THEME_QUERY,
+  THEME_COLORS,
+  THEME_EVENT,
+  THEME_STORAGE_KEY,
+  type Theme,
+} from "../data/theme";
 
 function currentTheme(): Theme {
   if (typeof document === "undefined") return "light";
@@ -17,23 +18,23 @@ function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
   document
     .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    ?.setAttribute("content", theme === "dark" ? "#0d171e" : "#f8fafb");
+    ?.setAttribute("content", THEME_COLORS[theme]);
 }
 
 function subscribe(onChange: () => void) {
-  const systemTheme = window.matchMedia(systemThemeQuery);
+  const systemTheme = window.matchMedia(SYSTEM_THEME_QUERY);
 
   const handleSystemTheme = () => {
-    if (window.localStorage.getItem(storageKey)) return;
+    if (window.localStorage.getItem(THEME_STORAGE_KEY)) return;
     applyTheme(systemTheme.matches ? "dark" : "light");
     onChange();
   };
 
-  window.addEventListener(themeEvent, onChange);
+  window.addEventListener(THEME_EVENT, onChange);
   systemTheme.addEventListener("change", handleSystemTheme);
 
   return () => {
-    window.removeEventListener(themeEvent, onChange);
+    window.removeEventListener(THEME_EVENT, onChange);
     systemTheme.removeEventListener("change", handleSystemTheme);
   };
 }
@@ -45,8 +46,8 @@ export function ThemeToggle() {
   const toggleTheme = () => {
     const commitTheme = () => {
       applyTheme(nextTheme);
-      window.localStorage.setItem(storageKey, nextTheme);
-      window.dispatchEvent(new Event(themeEvent));
+      window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      window.dispatchEvent(new Event(THEME_EVENT));
     };
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",

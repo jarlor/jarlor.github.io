@@ -23,18 +23,15 @@ export function PortraitToggle() {
           src="/jiale-zhang-dark.jpg"
           alt=""
           fill
-          sizes="(max-width: 680px) 46vw, 188px"
+          sizes="(max-width: 720px) 54vw, (max-width: 960px) 232px, 248px"
           priority
-          unoptimized
         />
         <Image
           className={`hero-github-avatar ${!isPortrait ? "is-visible" : ""}`}
           src="/jarlor-github-avatar.jpg"
           alt=""
           fill
-          sizes="(max-width: 680px) 46vw, 188px"
-          priority
-          unoptimized
+          sizes="(max-width: 720px) 54vw, (max-width: 960px) 232px, 248px"
         />
       </span>
       <span className="hero-portrait-caption">

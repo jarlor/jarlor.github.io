@@ -4,101 +4,163 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect } from "react";
+import {
+  defaultResearchThemeId,
+  isResearchThemeId,
+  RESEARCH_THEME_EVENT,
+  researchThemeIds,
+  researchThemesById,
+  type ResearchThemeEventDetail,
+  type ResearchThemeId,
+} from "../data/research";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
-const phrases = {
-  AI4S: "scientific inquiry.",
-  MAS: "multi-agent coordination.",
-  RAG: "evidence-grounded retrieval.",
+const typewriterMotion = {
+  holdDurationMs: 6500,
+  secondsPerCharacter: 0.027,
+  minimumDuration: 0.72,
+  maximumDuration: 1.5,
 } as const;
 
 export function PageMotion() {
   useEffect(() => {
     const target = document.querySelector<HTMLElement>("[data-phrases]");
-    if (!target) return;
+    const phraseWindow = target?.parentElement;
+    if (!target || !phraseWindow) return;
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    let activeMode = "";
-    let timer: ReturnType<typeof setTimeout>;
-    let phraseTween: gsap.core.Timeline | null = null;
-    let phraseVersion = 0;
+    let activeId: ResearchThemeId = defaultResearchThemeId;
+    let phraseTimer: ReturnType<typeof setTimeout>;
+    let transition: gsap.core.Timeline | null = null;
 
-    const typeCharacters = (phrase: string, version: number) => {
-      clearTimeout(timer);
-      let characterIndex = 0;
-      target.textContent = "";
-      const type = () => {
-        if (version !== phraseVersion) return;
-        characterIndex += 1;
-        target.textContent = phrase.slice(0, characterIndex);
-        if (characterIndex < phrase.length) {
-          timer = setTimeout(type, 38);
-        }
-      };
-      timer = setTimeout(type, 90);
+    const clearOutgoing = () => {
+      phraseWindow
+        .querySelectorAll(".hero-phrase-outgoing")
+        .forEach((element) => element.remove());
     };
 
-    const selectPhrase = (
-      mode: keyof typeof phrases,
-      options: { initial?: boolean } = {},
-    ) => {
-      if (!phrases[mode] || activeMode === mode) return;
-      activeMode = mode;
-      phraseVersion += 1;
-      const version = phraseVersion;
-      const phrase = phrases[mode];
+    const scheduleNextPhrase = () => {
+      clearTimeout(phraseTimer);
+      if (reducedMotion || document.hidden) return;
+      phraseTimer = setTimeout(() => {
+        const activeIndex = researchThemeIds.indexOf(activeId);
+        const nextId =
+          researchThemeIds[(activeIndex + 1) % researchThemeIds.length] ??
+          defaultResearchThemeId;
+        setPhrase(nextId, true);
+      }, typewriterMotion.holdDurationMs);
+    };
 
-      clearTimeout(timer);
-      phraseTween?.kill();
-
-      if (reducedMotion || options.initial) {
-        target.textContent = phrase;
-        gsap.set(target, { autoAlpha: 1, y: 0 });
+    const setPhrase = (id: ResearchThemeId, emit = false) => {
+      if (id === activeId) {
+        scheduleNextPhrase();
         return;
       }
 
-      phraseTween = gsap
-        .timeline()
-        .to(target, {
+      const previousText = target.textContent?.trim() ?? "";
+      const nextText = researchThemesById[id].heroPhrase;
+      activeId = id;
+      clearTimeout(phraseTimer);
+      transition?.kill();
+      clearOutgoing();
+
+      if (reducedMotion) {
+        target.textContent = nextText;
+        return;
+      }
+
+      const outgoing = document.createElement("span");
+      outgoing.className = "hero-phrase-outgoing";
+      outgoing.textContent = previousText;
+      phraseWindow.append(outgoing);
+
+      target.textContent = "";
+      target.classList.add("is-typing");
+
+      const typing = { characters: 0 };
+      const typeDuration = gsap.utils.clamp(
+        typewriterMotion.minimumDuration,
+        typewriterMotion.maximumDuration,
+        nextText.length * typewriterMotion.secondsPerCharacter,
+      );
+      transition = gsap.timeline({
+        onComplete: () => {
+          target.textContent = nextText;
+          target.classList.remove("is-typing");
+          clearOutgoing();
+          scheduleNextPhrase();
+        },
+      });
+
+      transition.to(
+        outgoing,
+        {
+          x: () => Math.min(96, phraseWindow.clientWidth * 0.16),
+          duration: 1.02,
+          ease: "power3.inOut",
+        },
+        0,
+      );
+      transition.to(
+        outgoing,
+        {
           autoAlpha: 0,
-          y: -5,
-          duration: 0.24,
-          ease: "power2.in",
-        })
-        .call(() => typeCharacters(phrase, version))
-        .set(target, { y: 6 })
-        .to(target, {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.46,
-          ease: "power3.out",
-        });
+          duration: 1.05,
+          ease: "power1.inOut",
+        },
+        0,
+      );
+      transition.fromTo(
+        target,
+        { x: -10, autoAlpha: 0.72 },
+        { x: 0, autoAlpha: 1, duration: 0.38, ease: "power2.out" },
+        0.08,
+      );
+      transition.to(
+        typing,
+        {
+          characters: nextText.length,
+          duration: typeDuration,
+          ease: "none",
+          onUpdate: () => {
+            target.textContent = nextText.slice(0, Math.round(typing.characters));
+          },
+        },
+        0.08,
+      );
+
+      if (emit) {
+        window.dispatchEvent(
+          new CustomEvent<ResearchThemeEventDetail>(RESEARCH_THEME_EVENT, {
+            detail: { id, source: "hero-cycle" },
+          }),
+        );
+      }
     };
 
-    const handleResearchFieldChange = (event: Event) => {
-      const mode = (event as CustomEvent<{ mode?: keyof typeof phrases }>).detail
-        ?.mode;
-      if (mode) selectPhrase(mode);
+    const handleThemeChange = (event: Event) => {
+      const detail = (event as CustomEvent<ResearchThemeEventDetail>).detail;
+      if (isResearchThemeId(detail?.id) && detail.source !== "hero-cycle") {
+        setPhrase(detail.id);
+      }
     };
+    const handleVisibility = () => scheduleNextPhrase();
 
-    const initialMode =
-      (document.documentElement.dataset
-        .researchFocus as keyof typeof phrases) || "AI4S";
-    selectPhrase(initialMode, { initial: true });
-    window.addEventListener("research-field-change", handleResearchFieldChange);
+    window.addEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
+    document.addEventListener("visibilitychange", handleVisibility);
+    scheduleNextPhrase();
 
     return () => {
-      phraseVersion += 1;
-      clearTimeout(timer);
-      phraseTween?.kill();
+      clearTimeout(phraseTimer);
+      transition?.kill();
+      clearOutgoing();
+      target.classList.remove("is-typing");
       gsap.killTweensOf(target);
-      window.removeEventListener(
-        "research-field-change",
-        handleResearchFieldChange,
-      );
+      window.removeEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
 
@@ -106,18 +168,41 @@ export function PageMotion() {
     const media = gsap.matchMedia();
 
     media.add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((item) => {
+      gsap.fromTo(
+        [
+          ".hero-name-lockup",
+          ".hero-research-title",
+          ".hero-thesis",
+          ".hero-actions",
+        ],
+        { autoAlpha: 0, y: 28 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.85,
+          stagger: 0.08,
+          ease: "power3.out",
+        },
+      );
+
+      gsap.fromTo(
+        ".hero-profile",
+        { autoAlpha: 0, x: 28 },
+        { autoAlpha: 1, x: 0, duration: 0.95, delay: 0.18, ease: "power3.out" },
+      );
+
+      gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
         gsap.fromTo(
-          item,
-          { autoAlpha: 0, y: 44 },
+          element,
+          { autoAlpha: 0, y: 32 },
           {
             autoAlpha: 1,
             y: 0,
-            duration: 0.95,
+            duration: 0.78,
             ease: "power3.out",
             scrollTrigger: {
-              trigger: item,
-              start: "top 88%",
+              trigger: element,
+              start: "top 90%",
               once: true,
             },
           },
@@ -125,50 +210,22 @@ export function PageMotion() {
       });
 
       gsap.fromTo(
-        ".research-intro h2",
-        { opacity: 0.28, y: 38 },
+        ".scroll-meter",
+        { scaleX: 0 },
         {
-          opacity: 1,
-          y: 0,
+          scaleX: 1,
           ease: "none",
           scrollTrigger: {
-            trigger: ".research-intro",
-            start: "top 82%",
-            end: "top 38%",
-            scrub: 0.7,
+            trigger: document.documentElement,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 0.25,
           },
         },
       );
     });
 
-    media.add("(prefers-reduced-motion: reduce)", () => {
-      gsap.set("[data-reveal]", { autoAlpha: 1, y: 0 });
-      gsap.set(".research-intro h2", {
-        opacity: 1,
-        y: 0,
-      });
-    });
-
-    const progressTrigger = ScrollTrigger.create({
-      start: 0,
-      end: "max",
-      onUpdate: ({ progress }) => {
-        document.documentElement.style.setProperty(
-          "--scroll-progress",
-          `${progress}`,
-        );
-      },
-    });
-    const initialRefresh = gsap.delayedCall(0.12, () => {
-      ScrollTrigger.refresh();
-      ScrollTrigger.update();
-    });
-
-    return () => {
-      initialRefresh.kill();
-      progressTrigger.kill();
-      media.revert();
-    };
+    return () => media.revert();
   });
 
   return null;
