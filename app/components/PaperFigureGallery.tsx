@@ -53,7 +53,7 @@ export function PaperFigureGallery({
       }}
     >
       <div className="paper-gallery-heading">
-        <span>Figures &amp; tables</span>
+        <span>Figures and Tables</span>
         <div className="paper-gallery-count" aria-live="polite">
           {String(activeIndex + 1).padStart(2, "0")}
           <i>/</i>
@@ -69,8 +69,6 @@ export function PaperFigureGallery({
           width={activeFigure.width}
           height={activeFigure.height}
           sizes="(max-width: 720px) 100vw, 1200px"
-          unoptimized
-          priority={activeIndex === 0}
         />
       </div>
 
@@ -124,7 +122,6 @@ export function PaperFigureGallery({
                   width={figure.width}
                   height={figure.height}
                   sizes="120px"
-                  unoptimized
                 />
               </span>
               <span>{String(index + 1).padStart(2, "0")}</span>

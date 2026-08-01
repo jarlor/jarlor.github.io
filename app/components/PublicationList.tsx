@@ -3,16 +3,22 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { PublicationWork } from "../data/publications";
+import { siteProfile } from "../data/site";
 import { PaperFigureGallery } from "./PaperFigureGallery";
 
 function Authors({ names }: { names: string }) {
-  const parts = names.split("Jiale Zhang");
+  const authorIndex = names.indexOf(siteProfile.name);
+
+  if (authorIndex === -1) return names;
+
+  const before = names.slice(0, authorIndex);
+  const after = names.slice(authorIndex + siteProfile.name.length);
 
   return (
     <>
-      {parts[0]}
-      <strong className="self-author">Jiale Zhang</strong>
-      {parts[1]}
+      {before}
+      <strong className="self-author">{siteProfile.name}</strong>
+      {after}
     </>
   );
 }
@@ -53,13 +59,7 @@ export function PublicationList({
     <>
       <div className="publication-list">
         {works.map((work, index) => (
-          <article
-            className="publication-entry"
-            key={work.title}
-            data-research-mode={
-              work.area.includes("AGENT SYSTEMS") ? "MAS" : "RAG"
-            }
-          >
+          <article className="publication-entry" key={work.title}>
             <button
               className="publication-row-hit"
               type="button"
@@ -101,7 +101,6 @@ export function PublicationList({
                   alt={work.preview.alt}
                   fill
                   sizes="(max-width: 680px) 96px, 230px"
-                  unoptimized
                 />
               </span>
               <span className="publication-side">
@@ -131,9 +130,6 @@ export function PublicationList({
             role="dialog"
             aria-modal="true"
             aria-labelledby="paper-viewer-title"
-            data-paper-tone={
-              selectedWork.area.includes("AGENT SYSTEMS") ? "MAS" : "RAG"
-            }
           >
             <header className="paper-viewer-header">
               <div>
@@ -163,7 +159,7 @@ export function PublicationList({
             <div className="paper-viewer-layout">
               <aside className="paper-viewer-copy">
                 <section>
-                  <span>Summary</span>
+                  <span>In One Sentence</span>
                   <p className="paper-viewer-deck">{selectedWork.summary}</p>
                 </section>
                 <section>

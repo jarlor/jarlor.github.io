@@ -10,7 +10,6 @@ export type PaperFigure = {
 };
 
 export type PublicationWork = {
-  slug: string;
   year: string;
   status: string;
   area: string;
@@ -32,10 +31,9 @@ export type PublicationWork = {
 
 export const publications = [
   {
-    slug: "slimrag",
     year: "2025",
-    status: "PREPRINT",
-    area: "RAG",
+    status: "Preprint",
+    area: "Retrieval",
     title: "SlimRAG: Retrieval without Graphs via Entity-Aware Context Selection",
     authors:
       "Jiale Zhang, Jiaxiang Chen, Zhucong Li, Jie Ding, Kui Zhao, Zenglin Xu, Xin Pang, Yinghui Xu",
@@ -64,7 +62,7 @@ export const publications = [
         width: 902,
         height: 770,
         label: "Figure 01",
-        title: "Graph-based retrieval vs. SlimRAG",
+        title: "Graph-Based Retrieval vs. SlimRAG",
         caption:
           "Graph-based methods construct and refine subgraphs, while SlimRAG retrieves context through a lightweight entity-to-chunk index.",
         source: "Paper figure",
@@ -75,7 +73,7 @@ export const publications = [
         width: 1656,
         height: 606,
         label: "Figure 02",
-        title: "Indexing and retrieval pipeline",
+        title: "Indexing and Retrieval Pipeline",
         caption:
           "Documents are split into chunks and indexed by salient entities; query entities then retrieve and rank the most relevant chunks.",
         source: "Paper figure",
@@ -86,7 +84,7 @@ export const publications = [
         width: 2363,
         height: 1485,
         label: "Figure 03",
-        title: "Indexing efficiency",
+        title: "Indexing Efficiency",
         caption:
           "Index construction cost and elapsed time across corpus sizes for SlimRAG, LightRAG, and GraphRAG.",
         source: "Paper figure",
@@ -97,7 +95,7 @@ export const publications = [
         width: 886,
         height: 685,
         label: "Figure 04",
-        title: "HotpotQA comparison",
+        title: "HotpotQA Comparison",
         caption:
           "A normalized comparison across retrieval quality, indexing time, and relative index token utilization.",
         source: "Paper figure",
@@ -108,7 +106,7 @@ export const publications = [
         width: 1766,
         height: 608,
         label: "Table 01",
-        title: "Main retrieval results",
+        title: "Main Retrieval Results",
         caption:
           "SlimRAG achieves the strongest retrieval accuracy and the lowest relative index token utilization among the compared methods.",
         source: "Paper table",
@@ -116,10 +114,9 @@ export const publications = [
     ],
   },
   {
-    slug: "chunkgraph",
     year: "2025",
-    status: "CONFERENCE PAPER",
-    area: "RETRIEVAL",
+    status: "Conference paper",
+    area: "Retrieval",
     title:
       "ChunkGraph: Relationship-Driven Retrieval Through Progressive Complete Graphs",
     authors: "Jiale Zhang, Kui Zhao, Hao Zhang, Fuzhe Zhang, Xu Liu",
@@ -145,7 +142,7 @@ export const publications = [
         width: 1462,
         height: 808,
         label: "Figure 01",
-        title: "Progressive retrieval workflow",
+        title: "Progressive Retrieval Workflow",
         caption:
           "Complete graph initialization is followed by adaptive selection, relationship expansion, PPR pruning, and progressive relationship construction.",
         source: "Paper figure",
@@ -156,7 +153,7 @@ export const publications = [
         width: 1600,
         height: 820,
         label: "Figure 02",
-        title: "Relationship refinement, redrawn",
+        title: "Relationship Refinement, Redrawn",
         caption:
           "A closer view of the transition from candidate relations to a compact, query-conditioned evidence path.",
         source: "Redrawn from the method description",
@@ -167,7 +164,7 @@ export const publications = [
         width: 2759,
         height: 635,
         label: "Table 01",
-        title: "Main retrieval results",
+        title: "Main Retrieval Results",
         caption:
           "The full ChunkGraph system balances retrieval quality with lower indexing time and fewer LLM calls than entity-graph baselines.",
         source: "Paper table",
@@ -175,10 +172,9 @@ export const publications = [
     ],
   },
   {
-    slug: "ai2agent",
     year: "2025",
-    status: "SYSTEM DEMONSTRATION",
-    area: "AGENT SYSTEMS",
+    status: "System demonstration",
+    area: "Agent systems",
     title:
       "AI2Agent: An End-to-End Framework for Deploying AI Projects as Autonomous Agents",
     authors:
@@ -213,7 +209,7 @@ export const publications = [
         width: 2079,
         height: 2458,
         label: "Figure 01",
-        title: "From project request to deployed agent",
+        title: "From Project Request to Deployed Agent",
         caption:
           "A user request initiates project search, guideline execution, automated deployment, debugging, and agent packaging.",
         source: "Paper figure",
@@ -224,7 +220,7 @@ export const publications = [
         width: 2947,
         height: 1704,
         label: "Figure 02",
-        title: "Comparison of deployment paradigms",
+        title: "Comparison of Deployment Paradigms",
         caption:
           "AI2Agent combines guideline-driven execution, self-adaptive debugging, and case accumulation in an end-to-end agent workflow.",
         source: "Paper figure",
@@ -235,7 +231,7 @@ export const publications = [
         width: 1124,
         height: 795,
         label: "Figure 03",
-        title: "Local auto-deployment process",
+        title: "Local Auto-Deployment Process",
         caption:
           "Execution follows predefined guidelines while the planning interface adapts to deployment conditions.",
         source: "Paper figure",
@@ -246,7 +242,7 @@ export const publications = [
         width: 965,
         height: 1043,
         label: "Figure 04",
-        title: "Deployment evaluation",
+        title: "Deployment Evaluation",
         caption:
           "The paper compares average deployment time and success rate between manual deployment and AI2Agent.",
         source: "Paper figure",
@@ -254,7 +250,3 @@ export const publications = [
     ],
   },
 ] satisfies PublicationWork[];
-
-export function getPublication(slug: string) {
-  return publications.find((publication) => publication.slug === slug);
-}
