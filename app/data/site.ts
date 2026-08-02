@@ -14,8 +14,8 @@ export const siteProfile = {
   description:
     "Jiale Zhang studies long-horizon LLM-based agents, task-level process reconstruction from interaction traces, retrieval for task continuation, and prospective learning from recorded interactions.",
   position: {
-    title: "Incoming Ph.D. Student",
-    detail: "Computer Science, starting September 2026",
+    title: "Ph.D. Student",
+    detail: "Computer Science",
   },
   institution: {
     name: "Fudan University",

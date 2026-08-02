@@ -27,6 +27,9 @@ export function PageMotion() {
   useEffect(() => {
     const target = document.querySelector<HTMLElement>("[data-phrases]");
     const phraseWindow = target?.parentElement;
+    const heroThemeControls = Array.from(
+      document.querySelectorAll<HTMLButtonElement>("[data-hero-theme]"),
+    );
     if (!target || !phraseWindow) return;
 
     const reducedMotion = window.matchMedia(
@@ -40,6 +43,14 @@ export function PageMotion() {
       phraseWindow
         .querySelectorAll(".hero-phrase-outgoing")
         .forEach((element) => element.remove());
+    };
+
+    const syncHeroTheme = (id: ResearchThemeId) => {
+      heroThemeControls.forEach((control) => {
+        const isActive = control.dataset.heroTheme === id;
+        control.classList.toggle("is-active", isActive);
+        control.setAttribute("aria-pressed", String(isActive));
+      });
     };
 
     const scheduleNextPhrase = () => {
@@ -63,6 +74,7 @@ export function PageMotion() {
       const previousText = target.textContent?.trim() ?? "";
       const nextText = researchThemesById[id].heroPhrase;
       activeId = id;
+      syncHeroTheme(id);
       clearTimeout(phraseTimer);
       transition?.kill();
       clearOutgoing();
@@ -147,8 +159,20 @@ export function PageMotion() {
         setPhrase(detail.id);
       }
     };
+    const handleHeroThemeSelect = (event: Event) => {
+      const id = (event.currentTarget as HTMLButtonElement).dataset.heroTheme;
+      if (!isResearchThemeId(id)) return;
+      window.dispatchEvent(
+        new CustomEvent<ResearchThemeEventDetail>(RESEARCH_THEME_EVENT, {
+          detail: { id, source: "manual" },
+        }),
+      );
+    };
     const handleVisibility = () => scheduleNextPhrase();
 
+    heroThemeControls.forEach((control) =>
+      control.addEventListener("click", handleHeroThemeSelect),
+    );
     window.addEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
     document.addEventListener("visibilitychange", handleVisibility);
     scheduleNextPhrase();
@@ -159,6 +183,9 @@ export function PageMotion() {
       clearOutgoing();
       target.classList.remove("is-typing");
       gsap.killTweensOf(target);
+      heroThemeControls.forEach((control) =>
+        control.removeEventListener("click", handleHeroThemeSelect),
+      );
       window.removeEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
