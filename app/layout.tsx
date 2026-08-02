@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, IBM_Plex_Mono, Source_Serif_4 } from "next/font/google";
+import {
+  IBM_Plex_Mono,
+  IBM_Plex_Sans,
+  Newsreader,
+} from "next/font/google";
 import { siteProfile } from "./data/site";
 import {
   SYSTEM_THEME_QUERY,
@@ -8,15 +12,17 @@ import {
 } from "./data/theme";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const sourceSerif = Source_Serif_4({
+const newsreader = Newsreader({
   variable: "--font-serif",
   subsets: ["latin"],
   style: ["normal", "italic"],
+});
+
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-display",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["300", "400", "500", "600"],
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -90,7 +96,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
-        className={`${geist.variable} ${sourceSerif.variable} ${plexMono.variable}`}
+        className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable}`}
       >
         {children}
       </body>

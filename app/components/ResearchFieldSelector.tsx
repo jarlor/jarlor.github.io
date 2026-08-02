@@ -1,43 +1,79 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useState } from "react";
 import {
   defaultResearchThemeId,
-  isResearchThemeId,
-  RESEARCH_THEME_EVENT,
   researchThemes,
   researchThemesById,
-  type ResearchThemeEventDetail,
   type ResearchThemeId,
 } from "../data/research";
 
+gsap.registerPlugin(useGSAP, ScrollTrigger);
+
+const researchNarrative = [
+  {
+    id: "STATE",
+    before: "My research on long-horizon LLM agents connects ",
+    after: " from interaction traces, ",
+  },
+  {
+    id: "MEMORY",
+    before: "",
+    after: " across sessions, and ",
+  },
+  {
+    id: "LEARNING",
+    before: "",
+    after: " from recorded trajectories in scientific workflows.",
+  },
+] as const satisfies readonly {
+  id: ResearchThemeId;
+  before: string;
+  after: string;
+}[];
+
 export function ResearchFieldSelector() {
-  const [activeId, setActiveId] = useState<ResearchThemeId>(
+  const [scrollId, setScrollId] = useState<ResearchThemeId>(
     defaultResearchThemeId,
   );
+  const [hoveredId, setHoveredId] = useState<ResearchThemeId | null>(null);
   const regionRef = useRef<HTMLDivElement>(null);
+  const focusedId = hoveredId ?? scrollId;
 
-  useEffect(() => {
-    const syncTheme = (event: Event) => {
-      const id = (event as CustomEvent<ResearchThemeEventDetail>).detail?.id;
-      if (!isResearchThemeId(id)) return;
-      setActiveId(id);
-    };
+  useGSAP(
+    () => {
+      const region = regionRef.current;
+      if (!region) return;
 
-    window.addEventListener(RESEARCH_THEME_EVENT, syncTheme);
-    return () => window.removeEventListener(RESEARCH_THEME_EVENT, syncTheme);
-  }, []);
+      const media = gsap.matchMedia();
+      media.add("(prefers-reduced-motion: no-preference)", () => {
+        let lastId: ResearchThemeId = defaultResearchThemeId;
+        const trigger = ScrollTrigger.create({
+          trigger: region,
+          start: "top 72px",
+          end: "bottom 28%",
+          onUpdate: ({ progress }) => {
+            const index = Math.min(
+              researchThemes.length - 1,
+              Math.floor(progress * researchThemes.length),
+            );
+            const nextId = researchThemes[index]?.id ?? defaultResearchThemeId;
+            if (nextId === lastId) return;
+            lastId = nextId;
+            setScrollId(nextId);
+          },
+        });
 
-  const activeTheme = researchThemesById[activeId];
+        return () => trigger.kill();
+      });
 
-  const handleManualSelect = (id: ResearchThemeId) => {
-    setActiveId(id);
-    window.dispatchEvent(
-      new CustomEvent<ResearchThemeEventDetail>(RESEARCH_THEME_EVENT, {
-        detail: { id, source: "manual" },
-      }),
-    );
-  };
+      return () => media.revert();
+    },
+    { scope: regionRef },
+  );
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const region = regionRef.current;
@@ -45,8 +81,8 @@ export function ResearchFieldSelector() {
     const rect = region.getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width - 0.5;
     const y = (event.clientY - rect.top) / rect.height - 0.5;
-    region.style.setProperty("--agenda-shift-x", `${x * 14}px`);
-    region.style.setProperty("--agenda-shift-y", `${y * 10}px`);
+    region.style.setProperty("--agenda-shift-x", `${x * 8}px`);
+    region.style.setProperty("--agenda-shift-y", `${y * 6}px`);
   };
 
   const clearPointer = () => {
@@ -57,7 +93,7 @@ export function ResearchFieldSelector() {
   return (
     <div
       className="research-agenda"
-      data-active-theme={activeId}
+      data-focus={focusedId ?? undefined}
       ref={regionRef}
       onPointerMove={handlePointerMove}
       onPointerLeave={clearPointer}
@@ -117,30 +153,29 @@ export function ResearchFieldSelector() {
         </svg>
       </div>
 
-      <div className="agenda-copy" aria-live="polite">
-        <span className="agenda-status">{activeTheme.status}</span>
-        <h3 key={`${activeTheme.id}-title`}>{activeTheme.title}</h3>
-        <p key={`${activeTheme.id}-description`}>{activeTheme.description}</p>
-        <div className="agenda-methods" key={`${activeTheme.id}-methods`}>
-          {activeTheme.methods.map((method) => (
-            <span key={method}>{method}</span>
+      <div className="research-statement">
+        <h2>Research</h2>
+        <p>
+          {researchNarrative.map(({ id, before, after }) => (
+            <span key={id}>
+              {before}
+              <button
+                className={id === focusedId ? "is-active" : undefined}
+                type="button"
+                aria-pressed={id === focusedId}
+                onClick={() => setScrollId(id)}
+                onFocus={() => setScrollId(id)}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === "mouse") setHoveredId(id);
+                }}
+                onPointerLeave={() => setHoveredId(null)}
+              >
+                {researchThemesById[id].shortTitle.toLowerCase()}
+              </button>
+              {after}
+            </span>
           ))}
-        </div>
-      </div>
-
-      <div className="agenda-controls" aria-label="Research themes">
-        {researchThemes.map((theme) => (
-          <button
-            className={theme.id === activeId ? "is-active" : undefined}
-            type="button"
-            key={theme.id}
-            aria-pressed={theme.id === activeId}
-            onClick={() => handleManualSelect(theme.id)}
-          >
-            <span>{theme.shortTitle}</span>
-            <i aria-hidden="true" />
-          </button>
-        ))}
+        </p>
       </div>
     </div>
   );

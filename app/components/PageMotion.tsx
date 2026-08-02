@@ -194,6 +194,21 @@ export function PageMotion() {
   useGSAP(() => {
     const media = gsap.matchMedia();
 
+    const navLinks = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>("[data-nav-target]"),
+    );
+    const setActiveNav = (sectionId: string | null) => {
+      navLinks.forEach((link) => {
+        const isActive = link.dataset.navTarget === sectionId;
+        link.classList.toggle("is-active", isActive);
+        if (isActive) {
+          link.setAttribute("aria-current", "location");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      });
+    };
+
     media.add("(prefers-reduced-motion: no-preference)", () => {
       gsap.fromTo(
         [
@@ -252,7 +267,33 @@ export function PageMotion() {
       );
     });
 
-    return () => media.revert();
+    ["research", "publications"].forEach((sectionId) => {
+      ScrollTrigger.create({
+        trigger: `#${sectionId}`,
+        start: "top 42%",
+        end: "bottom 42%",
+        onEnter: () => setActiveNav(sectionId),
+        onEnterBack: () => setActiveNav(sectionId),
+      });
+    });
+
+    ScrollTrigger.create({
+      trigger: "#top",
+      start: "top top",
+      end: "bottom 42%",
+      onEnterBack: () => setActiveNav(null),
+    });
+
+    ScrollTrigger.create({
+      trigger: "#contact",
+      start: "top 42%",
+      onEnter: () => setActiveNav(null),
+    });
+
+    return () => {
+      setActiveNav(null);
+      media.revert();
+    };
   });
 
   return null;

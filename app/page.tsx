@@ -32,8 +32,12 @@ export default function Home() {
           {siteProfile.name}
         </a>
         <nav className="site-nav" aria-label="Main navigation">
-          <a href="#research">Research</a>
-          <a href="#publications">Publications</a>
+          <a href="#research" data-nav-target="research">
+            Research
+          </a>
+          <a href="#publications" data-nav-target="publications">
+            Publications
+          </a>
         </nav>
         <div className="header-actions">
           <ThemeToggle />
@@ -162,14 +166,6 @@ export default function Home() {
 
         <section className="research" id="research">
           <div className="section-shell">
-            <div className="research-intro" data-reveal>
-              <h2>Representing Long-Horizon Agent Interaction</h2>
-              <p>
-                Long scientific workflows outgrow a single context. I study how
-                their traces can support reconstruction, continuation, and
-                later learning.
-              </p>
-            </div>
             <ResearchFieldSelector />
           </div>
         </section>
@@ -185,17 +181,6 @@ export default function Home() {
             </div>
 
             <PublicationList works={publications} />
-
-            <a
-              className="scholar-link"
-              href={siteProfile.links.scholar}
-              target="_blank"
-              rel="noreferrer"
-              data-reveal
-            >
-              Complete record on Google Scholar
-              <span aria-hidden="true">↗</span>
-            </a>
           </div>
         </section>
 
