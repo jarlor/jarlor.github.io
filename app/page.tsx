@@ -7,6 +7,7 @@ import { PublicationList } from "./components/PublicationList";
 import { publications } from "./data/publications";
 import {
   defaultResearchThemeId,
+  researchThemes,
   researchThemesById,
 } from "./data/research";
 import { siteProfile } from "./data/site";
@@ -66,17 +67,36 @@ export default function Home() {
             </p>
             <p
               className="hero-thesis"
-              aria-label="I study how execution traces support process representation, how task state can be reconstructed across sessions, and when recorded trajectories can support policy learning."
+              aria-label={researchThemes
+                .map((theme) => theme.heroPhrase)
+                .join(" ")}
             >
-              <span className="hero-thesis-prefix" aria-hidden="true">
-                I study
-              </span>
               <span className="hero-phrase-window" aria-hidden="true">
                 <span data-phrases>
                   {defaultResearchTheme.heroPhrase}
                 </span>
               </span>
             </p>
+            <div
+              className="hero-research-sequence"
+              aria-label="Research progression"
+            >
+              {researchThemes.map((theme) => (
+                <button
+                  className={
+                    theme.id === defaultResearchThemeId
+                      ? "is-active"
+                      : undefined
+                  }
+                  type="button"
+                  key={theme.id}
+                  data-hero-theme={theme.id}
+                  aria-pressed={theme.id === defaultResearchThemeId}
+                >
+                  {theme.heroStage}
+                </button>
+              ))}
+            </div>
             <div className="hero-actions" aria-label="Academic links">
               <a
                 className="primary-button"

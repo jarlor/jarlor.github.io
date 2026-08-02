@@ -42,7 +42,7 @@ export const metadata: Metadata = {
         url: "/og-jiale.png",
         width: 1200,
         height: 630,
-        alt: `${siteProfile.name}, incoming Ph.D. student at ${siteProfile.institution.name}`,
+        alt: `${siteProfile.name}, Ph.D. student at ${siteProfile.institution.name}`,
       },
     ],
   },
