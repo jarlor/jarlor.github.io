@@ -2,11 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import {
-  defaultResearchThemeId,
-  isResearchThemeId,
-  RESEARCH_THEME_EVENT,
-  type ResearchThemeEventDetail,
-  type ResearchThemeId,
+  defaultResearchStageId,
+  isResearchStageId,
+  RESEARCH_STAGE_EVENT,
+  type ResearchStageEventDetail,
+  type ResearchStageId,
 } from "../data/research";
 
 type TraceNode = {
@@ -16,7 +16,6 @@ type TraceNode = {
   ty: number;
   phase: number;
   size: number;
-  group: number;
 };
 
 const clamp = (value: number, minimum: number, maximum: number) =>
@@ -25,7 +24,7 @@ const clamp = (value: number, minimum: number, maximum: number) =>
 export function ResearchTrace() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number | null>(null);
-  const themeIdRef = useRef<ResearchThemeId>(defaultResearchThemeId);
+  const stageIdRef = useRef<ResearchStageId>(defaultResearchStageId);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -53,23 +52,30 @@ export function ResearchTrace() {
     const setTargets = () => {
       nodes.forEach((node, index) => {
         const progress = index / Math.max(1, nodes.length - 1);
-        if (themeIdRef.current === "STATE") {
+        if (stageIdRef.current === "TRACE") {
           const lane = index % 4;
           node.tx = width * (0.44 + progress * 0.5);
-          node.ty = height * (0.22 + lane * 0.16 + Math.sin(index * 1.8) * 0.028);
+          node.ty =
+            height *
+            (0.22 + lane * 0.16 + Math.sin(index * 1.8) * 0.028);
         }
 
-        if (themeIdRef.current === "MEMORY") {
-          const angle = progress * Math.PI * 2 + node.group * 0.34;
-          const radius = Math.min(width, height) * (0.13 + node.group * 0.024);
-          node.tx = width * 0.76 + Math.cos(angle) * radius;
-          node.ty = height * 0.46 + Math.sin(angle) * radius * 0.68;
+        if (stageIdRef.current === "STATE") {
+          const frontier = index % 2 === 0 ? -1 : 1;
+          const split = Math.max(0, (progress - 0.7) / 0.3);
+          node.tx = width * (0.48 + progress * 0.46);
+          node.ty =
+            height *
+            (0.46 + Math.sin(progress * Math.PI * 2) * 0.035 + frontier * split * 0.2);
         }
 
-        if (themeIdRef.current === "LEARNING") {
-          const branch = index % 3;
-          node.tx = width * (0.48 + progress * 0.48);
-          node.ty = height * (0.46 + (branch - 1) * progress * 0.24);
+        if (stageIdRef.current === "EXPERIENCE") {
+          const branch = index % 3 - 1;
+          const converge = Math.sin(progress * Math.PI);
+          node.tx = width * (0.5 + progress * 0.44);
+          node.ty =
+            height *
+            (0.46 + branch * 0.13 * converge + Math.sin(index * 0.72) * 0.012);
         }
       });
     };
@@ -77,14 +83,13 @@ export function ResearchTrace() {
     const initialise = () => {
       seed = 1487;
       const count = width < 760 ? 26 : 46;
-      nodes = Array.from({ length: count }, (_, index) => ({
+      nodes = Array.from({ length: count }, () => ({
         x: width * (0.42 + random() * 0.54),
         y: height * (0.14 + random() * 0.7),
         tx: 0,
         ty: 0,
         phase: random() * Math.PI * 2,
         size: 1 + random() * 1.8,
-        group: index % 4,
       }));
       setTargets();
     };
@@ -140,13 +145,13 @@ export function ResearchTrace() {
           }
         }
 
-        context.fillStyle = `rgba(${index % 8 === 0 ? text : accent}, ${0.18 + pointerInfluence * 0.28})`;
+        context.fillStyle = `rgba(${index % 8 === 0 ? text : accent}, ${0.18 + pointerInfluence * 0.18})`;
         context.beginPath();
-        context.arc(node.x, node.y, node.size + pointerInfluence * 1.1, 0, Math.PI * 2);
+        context.arc(node.x, node.y, node.size, 0, Math.PI * 2);
         context.fill();
       });
 
-      if (themeIdRef.current === "LEARNING") {
+      if (stageIdRef.current === "EXPERIENCE") {
         context.strokeStyle = `rgba(${accent}, 0.1)`;
         context.lineWidth = 0.8;
         context.setLineDash([4, 7]);
@@ -196,10 +201,10 @@ export function ResearchTrace() {
     };
 
     const handleThemeChange = (event: Event) => {
-      const id = (event as CustomEvent<ResearchThemeEventDetail>).detail?.id;
-      if (!isResearchThemeId(id)) return;
+      const id = (event as CustomEvent<ResearchStageEventDetail>).detail?.id;
+      if (!isResearchStageId(id)) return;
 
-      themeIdRef.current = id;
+      stageIdRef.current = id;
       setTargets();
       if (reducedMotion) {
         nodes.forEach((node) => {
@@ -222,7 +227,7 @@ export function ResearchTrace() {
     });
     hero.addEventListener("pointermove", updatePointer, { passive: true });
     hero.addEventListener("pointerleave", clearPointer);
-    window.addEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
+    window.addEventListener(RESEARCH_STAGE_EVENT, handleThemeChange);
 
     resize();
     draw(lastTime);
@@ -232,7 +237,7 @@ export function ResearchTrace() {
       themeObserver.disconnect();
       hero.removeEventListener("pointermove", updatePointer);
       hero.removeEventListener("pointerleave", clearPointer);
-      window.removeEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
+      window.removeEventListener(RESEARCH_STAGE_EVENT, handleThemeChange);
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
   }, []);

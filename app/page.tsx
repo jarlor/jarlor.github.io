@@ -1,18 +1,18 @@
 import { PageMotion } from "./components/PageMotion";
 import { PortraitToggle } from "./components/PortraitToggle";
-import { ResearchFieldSelector } from "./components/ResearchFieldSelector";
+import { ResearchNarrative } from "./components/ResearchNarrative";
 import { ResearchTrace } from "./components/ResearchTrace";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { PublicationList } from "./components/PublicationList";
 import { publications } from "./data/publications";
 import {
-  defaultResearchThemeId,
-  researchThemes,
-  researchThemesById,
+  defaultResearchStageId,
+  researchStages,
+  researchStagesById,
 } from "./data/research";
 import { siteProfile } from "./data/site";
 
-const defaultResearchTheme = researchThemesById[defaultResearchThemeId];
+const defaultResearchStage = researchStagesById[defaultResearchStageId];
 
 export default function Home() {
   return (
@@ -69,38 +69,22 @@ export default function Home() {
               <span>{siteProfile.researchTitle.lead}</span>{" "}
               <span>{siteProfile.researchTitle.tail}</span>
             </p>
+            <p className="hero-research-statement">
+              I study how long-horizon interaction traces can be transformed
+              into decision-relevant representations for research agents.
+            </p>
             <p
               className="hero-thesis"
-              aria-label={researchThemes
-                .map((theme) => theme.heroPhrase)
+              aria-label={researchStages
+                .map((stage) => stage.heroPhrase)
                 .join(" ")}
             >
               <span className="hero-phrase-window" aria-hidden="true">
                 <span data-phrases>
-                  {defaultResearchTheme.heroPhrase}
+                  {defaultResearchStage.heroPhrase}
                 </span>
               </span>
             </p>
-            <div
-              className="hero-research-sequence"
-              aria-label="Research progression"
-            >
-              {researchThemes.map((theme) => (
-                <button
-                  className={
-                    theme.id === defaultResearchThemeId
-                      ? "is-active"
-                      : undefined
-                  }
-                  type="button"
-                  key={theme.id}
-                  data-hero-theme={theme.id}
-                  aria-pressed={theme.id === defaultResearchThemeId}
-                >
-                  {theme.heroStage}
-                </button>
-              ))}
-            </div>
             <div className="hero-actions" aria-label="Academic links">
               <a
                 className="primary-button"
@@ -166,7 +150,7 @@ export default function Home() {
 
         <section className="research" id="research">
           <div className="section-shell">
-            <ResearchFieldSelector />
+            <ResearchNarrative />
           </div>
         </section>
 
@@ -174,10 +158,6 @@ export default function Home() {
           <div className="section-shell">
             <div className="publication-heading" data-reveal>
               <h2>Publications</h2>
-              <p>
-                Previous work in retrieval and agent systems informs this
-                research agenda.
-              </p>
             </div>
 
             <PublicationList works={publications} />
@@ -188,8 +168,8 @@ export default function Home() {
           <div className="contact-inner section-shell" data-reveal>
             <h2>Open to Research Collaborations</h2>
             <p>
-              I welcome discussions on long-horizon agents, process
-              representation, and scientific workflows.
+              I welcome discussions on long-horizon agents, task-state
+              representation, and learning from recorded interactions.
             </p>
             <div className="contact-emails">
               {siteProfile.emails.map((email) => (

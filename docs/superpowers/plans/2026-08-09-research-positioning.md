@@ -25,7 +25,7 @@
 
 ## File Structure
 
-- Create `scripts/homepage-content.test.mjs`: source-level public-copy contract using Node's built-in test runner.
+- Create `scripts/homepage-content.test.mjs`: rendered GitHub Pages HTML contract using Node's built-in test runner.
 - Modify `package.json`: run the content contract before lint and production build.
 - Modify `app/data/research.ts`: single typed definition of TRACE, STATE, and EXPERIENCE stages.
 - Modify `app/data/site.ts`: updated metadata description.
@@ -53,22 +53,18 @@
 
 - [ ] **Step 1: Add a failing public-copy contract**
 
-Create `scripts/homepage-content.test.mjs` with Node test cases that read `app/page.tsx`, `app/data/site.ts`, and `app/data/research.ts` and assert:
+Create `scripts/homepage-content.test.mjs` with Node test cases that read the exported `out/index.html` and assert the visitor-visible result:
 
 ```js
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+const readHomepage = () =>
+  readFile(new URL("../out/index.html", import.meta.url), "utf8");
 
 test("homepage uses the approved research progression", async () => {
-  const [page, site, research] = await Promise.all([
-    read("app/page.tsx"),
-    read("app/data/site.ts"),
-    read("app/data/research.ts"),
-  ]);
-  const source = `${page}\n${site}\n${research}`;
+  const html = await readHomepage();
 
   for (const text of [
     "decision-relevant representations for research agents",
@@ -77,25 +73,20 @@ test("homepage uses the approved research progression", async () => {
     "toward reusable experience",
     "verified experience",
   ]) {
-    assert.match(source, new RegExp(text));
+    assert.match(html, new RegExp(text));
   }
 });
 
 test("homepage omits retired public framing", async () => {
-  const page = await read("app/page.tsx");
-  assert.doesNotMatch(page, /Previous work in retrieval and agent systems/);
-  assert.doesNotMatch(page, /data-hero-theme/);
+  const html = await readHomepage();
+  assert.doesNotMatch(html, /Previous work in retrieval and agent systems/);
+  assert.doesNotMatch(html, /data-hero-theme/);
 });
 
-test("public source copy contains no product disclosure or long dash", async () => {
-  const files = await Promise.all([
-    read("app/page.tsx"),
-    read("app/data/site.ts"),
-    read("app/data/research.ts"),
-  ]);
-  const source = files.join("\n");
-  assert.doesNotMatch(source, /Re-Searching/);
-  assert.doesNotMatch(source, /[—–]/);
+test("rendered homepage contains no product disclosure or long dash", async () => {
+  const html = await readHomepage();
+  assert.doesNotMatch(html, /Re-Searching/);
+  assert.doesNotMatch(html, /[—–]/);
 });
 ```
 
@@ -160,15 +151,16 @@ Update `siteProfile.description` to describe decision-relevant process represent
 
 - [ ] **Step 5: Add the contract to `npm test` and make it pass**
 
-Set:
+Set the verification order so the assertion always checks a fresh export:
 
 ```json
-"test": "node --test scripts/homepage-content.test.mjs && eslint . --ignore-pattern dist --ignore-pattern .next && GITHUB_PAGES=true next build"
+"test": "eslint . --ignore-pattern dist --ignore-pattern .next && GITHUB_PAGES=true next build && node --test scripts/homepage-content.test.mjs"
 ```
 
 Run:
 
 ```bash
+GITHUB_PAGES=true npm run build
 node --test scripts/homepage-content.test.mjs
 ```
 

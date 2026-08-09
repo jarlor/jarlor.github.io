@@ -1,53 +1,46 @@
-export type ResearchThemeId = "STATE" | "MEMORY" | "LEARNING";
-export type ResearchThemeSource = "hero-cycle" | "manual";
+export type ResearchStageId = "TRACE" | "STATE" | "EXPERIENCE";
+export type ResearchStageSource = "hero-cycle" | "manual";
 
-export type ResearchTheme = {
-  id: ResearchThemeId;
-  heroStage: string;
-  shortTitle: string;
+export type ResearchStage = {
+  id: ResearchStageId;
   heroPhrase: string;
+  inlineLabel: string;
 };
 
-export type ResearchThemeEventDetail = {
-  id: ResearchThemeId;
-  source: ResearchThemeSource;
+export type ResearchStageEventDetail = {
+  id: ResearchStageId;
+  source: ResearchStageSource;
 };
 
-export const RESEARCH_THEME_EVENT = "research-theme-change";
+export const RESEARCH_STAGE_EVENT = "research-stage-change";
 
-export const researchThemes = [
+export const researchStages = [
+  {
+    id: "TRACE",
+    heroPhrase: "from interaction traces",
+    inlineLabel: "process reconstruction from interaction traces",
+  },
   {
     id: "STATE",
-    heroStage: "Process graph",
-    shortTitle: "Process-Graph Representation",
-    heroPhrase:
-      "I reconstruct task-level research processes from agent interaction traces.",
+    heroPhrase: "to task-level state",
+    inlineLabel: "task-state abstraction for multi-session continuation",
   },
   {
-    id: "MEMORY",
-    heroStage: "Task state",
-    shortTitle: "Task-State Abstraction",
-    heroPhrase:
-      "I study what task state is required for reliable cross-session continuation.",
+    id: "EXPERIENCE",
+    heroPhrase: "toward reusable experience",
+    inlineLabel: "verified experience",
   },
-  {
-    id: "LEARNING",
-    heroStage: "Policy learning",
-    shortTitle: "Policy Learning",
-    heroPhrase:
-      "I investigate when recorded trajectories can support policy learning.",
-  },
-] as const satisfies readonly ResearchTheme[];
+] as const satisfies readonly ResearchStage[];
 
-export const researchThemeIds = researchThemes.map((theme) => theme.id);
-export const defaultResearchThemeId = researchThemes[0].id;
-export const researchThemesById = Object.fromEntries(
-  researchThemes.map((theme) => [theme.id, theme]),
-) as Record<ResearchThemeId, (typeof researchThemes)[number]>;
+export const researchStageIds = researchStages.map((stage) => stage.id);
+export const defaultResearchStageId = researchStages[0].id;
+export const researchStagesById = Object.fromEntries(
+  researchStages.map((stage) => [stage.id, stage]),
+) as Record<ResearchStageId, (typeof researchStages)[number]>;
 
-export function isResearchThemeId(value: unknown): value is ResearchThemeId {
+export function isResearchStageId(value: unknown): value is ResearchStageId {
   return (
     typeof value === "string" &&
-    researchThemeIds.includes(value as ResearchThemeId)
+    researchStageIds.includes(value as ResearchStageId)
   );
 }

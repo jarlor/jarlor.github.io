@@ -5,37 +5,34 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect } from "react";
 import {
-  defaultResearchThemeId,
-  isResearchThemeId,
-  RESEARCH_THEME_EVENT,
-  researchThemeIds,
-  researchThemesById,
-  type ResearchThemeEventDetail,
-  type ResearchThemeId,
+  defaultResearchStageId,
+  isResearchStageId,
+  RESEARCH_STAGE_EVENT,
+  researchStageIds,
+  researchStagesById,
+  type ResearchStageEventDetail,
+  type ResearchStageId,
 } from "../data/research";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const typewriterMotion = {
-  holdDurationMs: 6500,
-  secondsPerCharacter: 0.027,
-  minimumDuration: 0.72,
-  maximumDuration: 1.5,
+  holdDurationMs: 7600,
+  secondsPerCharacter: 0.022,
+  minimumDuration: 0.42,
+  maximumDuration: 0.9,
 } as const;
 
 export function PageMotion() {
   useEffect(() => {
     const target = document.querySelector<HTMLElement>("[data-phrases]");
     const phraseWindow = target?.parentElement;
-    const heroThemeControls = Array.from(
-      document.querySelectorAll<HTMLButtonElement>("[data-hero-theme]"),
-    );
     if (!target || !phraseWindow) return;
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    let activeId: ResearchThemeId = defaultResearchThemeId;
+    let activeId: ResearchStageId = defaultResearchStageId;
     let phraseTimer: ReturnType<typeof setTimeout>;
     let transition: gsap.core.Timeline | null = null;
 
@@ -45,36 +42,27 @@ export function PageMotion() {
         .forEach((element) => element.remove());
     };
 
-    const syncHeroTheme = (id: ResearchThemeId) => {
-      heroThemeControls.forEach((control) => {
-        const isActive = control.dataset.heroTheme === id;
-        control.classList.toggle("is-active", isActive);
-        control.setAttribute("aria-pressed", String(isActive));
-      });
-    };
-
     const scheduleNextPhrase = () => {
       clearTimeout(phraseTimer);
       if (reducedMotion || document.hidden) return;
       phraseTimer = setTimeout(() => {
-        const activeIndex = researchThemeIds.indexOf(activeId);
+        const activeIndex = researchStageIds.indexOf(activeId);
         const nextId =
-          researchThemeIds[(activeIndex + 1) % researchThemeIds.length] ??
-          defaultResearchThemeId;
+          researchStageIds[(activeIndex + 1) % researchStageIds.length] ??
+          defaultResearchStageId;
         setPhrase(nextId, true);
       }, typewriterMotion.holdDurationMs);
     };
 
-    const setPhrase = (id: ResearchThemeId, emit = false) => {
+    const setPhrase = (id: ResearchStageId, emit = false) => {
       if (id === activeId) {
         scheduleNextPhrase();
         return;
       }
 
       const previousText = target.textContent?.trim() ?? "";
-      const nextText = researchThemesById[id].heroPhrase;
+      const nextText = researchStagesById[id].heroPhrase;
       activeId = id;
-      syncHeroTheme(id);
       clearTimeout(phraseTimer);
       transition?.kill();
       clearOutgoing();
@@ -110,7 +98,7 @@ export function PageMotion() {
       transition.to(
         outgoing,
         {
-          x: () => Math.min(96, phraseWindow.clientWidth * 0.16),
+          x: () => Math.min(112, phraseWindow.clientWidth * 0.18),
           duration: 1.02,
           ease: "power3.inOut",
         },
@@ -127,9 +115,9 @@ export function PageMotion() {
       );
       transition.fromTo(
         target,
-        { x: -10, autoAlpha: 0.72 },
-        { x: 0, autoAlpha: 1, duration: 0.38, ease: "power2.out" },
-        0.08,
+        { x: -8, autoAlpha: 0.74 },
+        { x: 0, autoAlpha: 1, duration: 0.32, ease: "power2.out" },
+        0.05,
       );
       transition.to(
         typing,
@@ -141,12 +129,12 @@ export function PageMotion() {
             target.textContent = nextText.slice(0, Math.round(typing.characters));
           },
         },
-        0.08,
+        0.05,
       );
 
       if (emit) {
         window.dispatchEvent(
-          new CustomEvent<ResearchThemeEventDetail>(RESEARCH_THEME_EVENT, {
+          new CustomEvent<ResearchStageEventDetail>(RESEARCH_STAGE_EVENT, {
             detail: { id, source: "hero-cycle" },
           }),
         );
@@ -154,26 +142,14 @@ export function PageMotion() {
     };
 
     const handleThemeChange = (event: Event) => {
-      const detail = (event as CustomEvent<ResearchThemeEventDetail>).detail;
-      if (isResearchThemeId(detail?.id) && detail.source !== "hero-cycle") {
+      const detail = (event as CustomEvent<ResearchStageEventDetail>).detail;
+      if (isResearchStageId(detail?.id) && detail.source !== "hero-cycle") {
         setPhrase(detail.id);
       }
     };
-    const handleHeroThemeSelect = (event: Event) => {
-      const id = (event.currentTarget as HTMLButtonElement).dataset.heroTheme;
-      if (!isResearchThemeId(id)) return;
-      window.dispatchEvent(
-        new CustomEvent<ResearchThemeEventDetail>(RESEARCH_THEME_EVENT, {
-          detail: { id, source: "manual" },
-        }),
-      );
-    };
     const handleVisibility = () => scheduleNextPhrase();
 
-    heroThemeControls.forEach((control) =>
-      control.addEventListener("click", handleHeroThemeSelect),
-    );
-    window.addEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
+    window.addEventListener(RESEARCH_STAGE_EVENT, handleThemeChange);
     document.addEventListener("visibilitychange", handleVisibility);
     scheduleNextPhrase();
 
@@ -183,10 +159,7 @@ export function PageMotion() {
       clearOutgoing();
       target.classList.remove("is-typing");
       gsap.killTweensOf(target);
-      heroThemeControls.forEach((control) =>
-        control.removeEventListener("click", handleHeroThemeSelect),
-      );
-      window.removeEventListener(RESEARCH_THEME_EVENT, handleThemeChange);
+      window.removeEventListener(RESEARCH_STAGE_EVENT, handleThemeChange);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
@@ -214,6 +187,7 @@ export function PageMotion() {
         [
           ".hero-name-lockup",
           ".hero-research-title",
+          ".hero-research-statement",
           ".hero-thesis",
           ".hero-actions",
         ],

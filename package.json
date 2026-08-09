@@ -10,7 +10,7 @@
     "build": "next build",
     "build:pages": "GITHUB_PAGES=true next build",
     "start": "next start",
-    "test": "eslint . --ignore-pattern dist --ignore-pattern .next && GITHUB_PAGES=true next build",
+    "test": "eslint . --ignore-pattern dist --ignore-pattern .next && GITHUB_PAGES=true next build && node --test scripts/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {

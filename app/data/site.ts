@@ -12,7 +12,7 @@ export const siteProfile = {
     aside: "Probably.",
   },
   description:
-    "Jiale Zhang studies long-horizon LLM-based agents, task-level process reconstruction from interaction traces, retrieval for task continuation, and prospective learning from recorded interactions.",
+    "Jiale Zhang studies how long-horizon interaction traces can become decision-relevant process representations for task continuation, reusable experience, and prospective learning.",
   position: {
     title: "Ph.D. Student",
     detail: "Computer Science",
