@@ -401,35 +401,32 @@ html[data-theme="dark"] .theme-toggle-mark::after {
 }
 
 .hero-research-statement {
-  width: min(100%, 780px);
-  margin: 25px 0 0;
-  color: var(--copy);
-  font-family: var(--font-serif), serif;
-  font-size: clamp(16px, 1.25vw, 19px);
-  letter-spacing: -0.012em;
-  line-height: 1.5;
-}
-
-.hero-thesis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.34em;
   width: 100%;
-  max-width: none;
-  margin: 16px 0 0;
-  color: var(--accent);
+  margin: 25px 0 0;
   font-family: var(--font-display), sans-serif;
   font-size: clamp(17px, 1.35vw, 21px);
-  font-weight: 500;
   letter-spacing: -0.018em;
   line-height: 1.4;
 }
 
-.hero-phrase-window {
-  display: block;
+.hero-research-lead {
+  flex: 0 0 auto;
+  color: var(--copy);
+  font-weight: 420;
 }
 
 .hero-phrase-window {
+  flex: 1 1 420px;
+  min-width: 0;
   position: relative;
   height: 1.65em;
   overflow: hidden;
+  color: var(--accent);
+  font-weight: 500;
 }
 
 .hero-phrase-window > span {
@@ -734,7 +731,7 @@ html[data-theme="dark"] .theme-toggle-mark::after {
   --agenda-shift-y: 0px;
   position: relative;
   isolation: isolate;
-  min-height: clamp(400px, 34vw, 490px);
+  min-height: clamp(350px, 30vw, 420px);
   overflow: hidden;
   border-top: 1px solid var(--rule-strong);
   border-bottom: 1px solid var(--rule-strong);
@@ -822,7 +819,7 @@ html[data-theme="dark"] .theme-toggle-mark::after {
   z-index: 2;
   display: grid;
   align-content: center;
-  min-height: clamp(400px, 34vw, 490px);
+  min-height: clamp(350px, 30vw, 420px);
   max-width: none;
   width: 100%;
   padding: clamp(52px, 6vw, 78px) 0 clamp(50px, 5vw, 68px);
@@ -857,7 +854,7 @@ html[data-theme="dark"] .theme-toggle-mark::after {
   display: inline;
   margin: 0 0.035em;
   padding: 0 0.035em 0.05em;
-  color: var(--ink);
+  color: color-mix(in srgb, var(--ink) 84%, var(--accent));
   appearance: none;
   border: 0;
   background-color: transparent;
@@ -868,12 +865,12 @@ html[data-theme="dark"] .theme-toggle-mark::after {
   );
   background-repeat: no-repeat;
   background-position: 0 calc(100% - 0.04em);
-  background-size: 100% 1px;
+  background-size: 100% 1.25px;
   cursor: pointer;
   font-family: inherit;
   font-size: inherit;
   font-style: normal;
-  font-weight: inherit;
+  font-weight: 520;
   letter-spacing: inherit;
   line-height: inherit;
   box-decoration-break: clone;
@@ -1734,13 +1731,15 @@ html[data-theme="dark"] .theme-toggle-mark::after {
     white-space: nowrap;
   }
 
-  .hero-thesis {
-    margin-top: 14px;
+  .hero-research-statement {
+    display: block;
     font-size: 17px;
   }
 
   .hero-phrase-window {
+    display: block;
     height: 3.05em;
+    margin-top: 6px;
   }
 
   .hero-actions {
@@ -1790,7 +1789,7 @@ html[data-theme="dark"] .theme-toggle-mark::after {
   }
 
   .research-agenda {
-    min-height: 500px;
+    min-height: 440px;
   }
 
   .agenda-visual {
@@ -1799,7 +1798,7 @@ html[data-theme="dark"] .theme-toggle-mark::after {
   }
 
   .research-statement {
-    min-height: 500px;
+    min-height: 440px;
     padding: 44px 0 40px;
   }
 

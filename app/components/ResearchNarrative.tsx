@@ -5,6 +5,7 @@ import {
   defaultResearchStageId,
   isResearchStageId,
   RESEARCH_STAGE_EVENT,
+  researchNarrativeLead,
   researchStagesById,
   type ResearchStageEventDetail,
   type ResearchStageId,
@@ -13,20 +14,18 @@ import {
 const narrativeSegments = [
   {
     id: "TRACE",
-    before:
-      "My research asks how long-horizon agent histories can be transformed into compact, source-linked representations that preserve what matters for future decisions. I study ",
+    before: `${researchNarrativeLead} `,
     after: ", ",
   },
   {
     id: "STATE",
     before: "",
-    after: ", and whether ",
+    after: ", and ",
   },
   {
     id: "EXPERIENCE",
     before: "",
-    after:
-      " can eventually support learning from recorded trajectories.",
+    after: ".",
   },
 ] as const satisfies readonly {
   id: ResearchStageId;

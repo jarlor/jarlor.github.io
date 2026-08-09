@@ -188,7 +188,6 @@ export function PageMotion() {
           ".hero-name-lockup",
           ".hero-research-title",
           ".hero-research-statement",
-          ".hero-thesis",
           ".hero-actions",
         ],
         { autoAlpha: 0, y: 28 },

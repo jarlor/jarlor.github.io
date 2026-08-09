@@ -13,22 +13,25 @@ export type ResearchStageEventDetail = {
 };
 
 export const RESEARCH_STAGE_EVENT = "research-stage-change";
+export const heroResearchLead = "My work focuses on";
+export const researchNarrativeLead = "My research connects three problems:";
 
 export const researchStages = [
   {
     id: "TRACE",
-    heroPhrase: "from interaction traces",
+    heroPhrase: "reconstructing research processes from interaction traces.",
     inlineLabel: "process reconstruction from interaction traces",
   },
   {
     id: "STATE",
-    heroPhrase: "to task-level state",
+    heroPhrase: "preserving decision-relevant task state across sessions.",
     inlineLabel: "task-state abstraction for multi-session continuation",
   },
   {
     id: "EXPERIENCE",
-    heroPhrase: "toward reusable experience",
-    inlineLabel: "verified experience",
+    heroPhrase:
+      "evaluating when recorded trajectories can guide future decisions.",
+    inlineLabel: "whether recorded trajectories can become reusable experience",
   },
 ] as const satisfies readonly ResearchStage[];
 

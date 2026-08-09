@@ -7,6 +7,7 @@ import { PublicationList } from "./components/PublicationList";
 import { publications } from "./data/publications";
 import {
   defaultResearchStageId,
+  heroResearchLead,
   researchStages,
   researchStagesById,
 } from "./data/research";
@@ -69,16 +70,15 @@ export default function Home() {
               <span>{siteProfile.researchTitle.lead}</span>{" "}
               <span>{siteProfile.researchTitle.tail}</span>
             </p>
-            <p className="hero-research-statement">
-              I study how long-horizon interaction traces can be transformed
-              into decision-relevant representations for research agents.
-            </p>
             <p
-              className="hero-thesis"
+              className="hero-research-statement"
               aria-label={researchStages
-                .map((stage) => stage.heroPhrase)
+                .map((stage) => `${heroResearchLead} ${stage.heroPhrase}`)
                 .join(" ")}
             >
+              <span className="hero-research-lead" aria-hidden="true">
+                {heroResearchLead}
+              </span>
               <span className="hero-phrase-window" aria-hidden="true">
                 <span data-phrases>
                   {defaultResearchStage.heroPhrase}
