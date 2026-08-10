@@ -1,9 +1,28 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const readHomepage = () =>
   readFile(new URL("../out/index.html", import.meta.url), "utf8");
+
+test("homepage uses the original canal portrait", async () => {
+  const html = await readHomepage();
+
+  assert.match(html, /jiale-zhang-photo\.jpg/);
+});
+
+test("portrait asset preserves the uploaded JPEG byte for byte", async () => {
+  const portrait = await readFile(
+    new URL("../public/jiale-zhang-photo.jpg", import.meta.url),
+  );
+  const digest = createHash("sha256").update(portrait).digest("hex");
+
+  assert.equal(
+    digest,
+    "bcd83d17b43cd5e850f93e2671567fd988281ba7c9df498f32af4762437c360c",
+  );
+});
 
 test("homepage renders the approved Hero progression as one statement", async () => {
   const html = await readHomepage();

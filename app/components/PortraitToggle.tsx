@@ -13,14 +13,14 @@ export function PortraitToggle() {
     <button
       className="hero-portrait-toggle"
       type="button"
-      aria-label={`Show ${isPortrait ? "GitHub avatar" : "formal portrait"}`}
-      title={`Show ${isPortrait ? "GitHub avatar" : "formal portrait"}`}
+      aria-label={`Show ${isPortrait ? "GitHub avatar" : "portrait photo"}`}
+      title={`Show ${isPortrait ? "GitHub avatar" : "portrait photo"}`}
       onClick={() => setMode(isPortrait ? "github" : "portrait")}
     >
       <span className="hero-portrait-frame" aria-hidden="true">
         <Image
           className={`hero-portrait-primary ${isPortrait ? "is-visible" : ""}`}
-          src="/jiale-zhang-dark.jpg"
+          src="/jiale-zhang-photo.jpg"
           alt=""
           fill
           sizes="(max-width: 720px) 54vw, (max-width: 960px) 232px, 248px"
