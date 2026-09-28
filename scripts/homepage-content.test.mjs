@@ -6,7 +6,7 @@ import test from "node:test";
 const readHomepage = () =>
   readFile(new URL("../out/index.html", import.meta.url), "utf8");
 
-test("homepage uses the original canal portrait", async () => {
+test("homepage uses the supplied studio portrait", async () => {
   const html = await readHomepage();
 
   assert.match(html, /jiale-zhang-photo\.jpg/);
@@ -20,7 +20,7 @@ test("portrait asset preserves the uploaded JPEG byte for byte", async () => {
 
   assert.equal(
     digest,
-    "bcd83d17b43cd5e850f93e2671567fd988281ba7c9df498f32af4762437c360c",
+    "8a73776a35d39bfdb0d4ae7a6185fac2f3795b6af4ef3075581c199c8cc3c1db",
   );
 });
 
@@ -28,10 +28,10 @@ test("homepage renders the approved Hero progression as one statement", async ()
   const html = await readHomepage();
 
   for (const text of [
-    "My work focuses on",
-    "reconstructing research processes from interaction traces.",
-    "preserving decision-relevant task state across sessions.",
-    "evaluating when recorded trajectories can guide future decisions.",
+    "I study how agents",
+    "reconstruct task state from execution history.",
+    "decide when to continue, narrow, or revisit.",
+    "make sustained progress on long-horizon tasks.",
   ]) {
     assert.ok(html.includes(text), `expected rendered copy: ${text}`);
   }
@@ -41,19 +41,21 @@ test("homepage renders the approved Hero progression as one statement", async ()
   )?.[0];
 
   assert.ok(heroStatement, "expected one rendered Hero research statement");
-  assert.match(heroStatement, /My work focuses on/);
+  assert.match(heroStatement, /I study how agents/);
   assert.match(heroStatement, /data-phrases/);
   assert.doesNotMatch(html, /class="hero-thesis"/);
 });
 
-test("homepage renders a concise Research sentence with three anchors", async () => {
+test("Research connects representation to control without claiming results", async () => {
   const html = await readHomepage();
 
   for (const text of [
-    "My research connects three problems:",
-    "process reconstruction from interaction traces",
-    "task-state abstraction for multi-session continuation",
-    "whether recorded trajectories can become reusable experience",
+    "My current research connects",
+    "process representation",
+    "inference-time control",
+    "continue, narrow, or revisit",
+    "evaluate whether these interventions lead to sustained progress",
+    "Scientific research is my primary setting",
   ]) {
     assert.ok(html.includes(text), `expected rendered copy: ${text}`);
   }
@@ -76,17 +78,50 @@ test("homepage omits retired public framing", async () => {
 
 test("rendered homepage contains no product disclosure or long dash", async () => {
   const html = await readHomepage();
-  assert.doesNotMatch(html, /Re-Searching/);
+  assert.doesNotMatch(html, /Re-Searching|Lucid|recursive self-improvement/);
   assert.doesNotMatch(html, /[—–]/);
 });
 
-test("research themes remain inline flow content on narrow screens", async () => {
+test("Research is readable static content, not an interactive diagram", async () => {
   const html = await readHomepage();
   const researchSection = html.match(
     /<section class="research"[\s\S]*?<\/section>/,
   )?.[0];
 
   assert.ok(researchSection, "expected the rendered Research section");
-  assert.doesNotMatch(researchSection, /<button/);
-  assert.match(researchSection, /role="button"/);
+  assert.doesNotMatch(researchSection, /<button|role="button"|<svg|<canvas|data-focus/);
+  assert.match(researchSection, /<strong>process representation<\/strong>/);
+  assert.match(researchSection, /<strong>inference-time control<\/strong>/);
+});
+
+test("profile retains education, contact details and slogan, with no CV", async () => {
+  const html = await readHomepage();
+  for (const text of [
+    "Ph.D. Student", "Fudan University", "2026-present", "2023-2026",
+    "University of Chinese Academy of Sciences", "Ethically aligned.",
+    "Probably.", "jlzhang26@m.fudan.edu.cn", "jarlor@foxmail.com",
+  ]) {
+    assert.ok(html.includes(text), `expected profile copy: ${text}`);
+  }
+  assert.doesNotMatch(html, /Incoming Ph.D.|Ph.D. Candidate|academic-cv.pdf/);
+});
+
+test("publications retain original previews, author highlights and resources", async () => {
+  const html = await readHomepage();
+  const section = html.match(/<section class="publications"[\s\S]*?<\/section>/)?.[0];
+  assert.ok(section);
+  assert.equal((section.match(/class="publication-entry"/g) ?? []).length, 3);
+  assert.equal((section.match(/class="self-author"/g) ?? []).length, 3);
+  for (const path of [
+    "/paper-figures/slimrag/comparison.png",
+    "/paper-figures/chunkgraph/workflow.png",
+    "/paper-figures/ai2agent/paradigms.png",
+    "https://arxiv.org/abs/2506.17288",
+    "https://arxiv.org/pdf/2506.17288",
+    "https://github.com/continue-ai-company/SlimRAG",
+    "https://doi.org/10.1109/ICCC68654.2025.11438132",
+    "https://aclanthology.org/2025.acl-demo.51/",
+  ]) {
+    assert.ok(section.includes(path), `expected publication resource: ${path}`);
+  }
 });

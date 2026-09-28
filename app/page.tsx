@@ -1,19 +1,11 @@
 import { PageMotion } from "./components/PageMotion";
 import { PortraitToggle } from "./components/PortraitToggle";
 import { ResearchNarrative } from "./components/ResearchNarrative";
-import { ResearchTrace } from "./components/ResearchTrace";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { PublicationList } from "./components/PublicationList";
 import { publications } from "./data/publications";
-import {
-  defaultResearchStageId,
-  heroResearchLead,
-  researchStages,
-  researchStagesById,
-} from "./data/research";
+import { heroResearchLead, heroResearchPhrases } from "./data/research";
 import { siteProfile } from "./data/site";
-
-const defaultResearchStage = researchStagesById[defaultResearchStageId];
 
 export default function Home() {
   return (
@@ -42,7 +34,7 @@ export default function Home() {
         </nav>
         <div className="header-actions">
           <ThemeToggle />
-          <a className="contact-link" href="#contact">
+          <a className="contact-link" href="#contact" data-nav-target="contact">
             Contact <span aria-hidden="true">↗</span>
           </a>
         </div>
@@ -50,44 +42,39 @@ export default function Home() {
 
       <main id="main-content">
         <section className="hero" id="top">
-          <ResearchTrace />
           <div className="hero-main">
             <div className="hero-name-lockup">
               <p className="hero-slogan">
                 <strong>{siteProfile.slogan.lead}</strong>{" "}
                 <em>{siteProfile.slogan.aside}</em>
               </p>
-              <h1 aria-label={siteProfile.name}>
-                <span className="hero-name-given" aria-hidden="true">
-                  {siteProfile.firstName}
-                </span>
-                <span className="hero-name-family" aria-hidden="true">
-                  {siteProfile.lastName}
-                </span>
-              </h1>
+              <h1>{siteProfile.name}</h1>
             </div>
+            <p className="hero-affiliation">
+              {siteProfile.position.title} in {siteProfile.position.detail}
+              <span aria-hidden="true"> · </span>
+              {siteProfile.institution.name}
+            </p>
             <p className="hero-research-title">
               <span>{siteProfile.researchTitle.lead}</span>{" "}
               <span>{siteProfile.researchTitle.tail}</span>
             </p>
             <p
               className="hero-research-statement"
-              aria-label={researchStages
-                .map((stage) => `${heroResearchLead} ${stage.heroPhrase}`)
+              aria-label={heroResearchPhrases
+                .map((phrase) => `${heroResearchLead} ${phrase}`)
                 .join(" ")}
             >
               <span className="hero-research-lead" aria-hidden="true">
                 {heroResearchLead}
               </span>
               <span className="hero-phrase-window" aria-hidden="true">
-                <span data-phrases>
-                  {defaultResearchStage.heroPhrase}
-                </span>
+                <span data-phrases>{heroResearchPhrases[0]}</span>
               </span>
             </p>
             <div className="hero-actions" aria-label="Academic links">
               <a
-                className="primary-button"
+                className="academic-link"
                 href={siteProfile.links.scholar}
                 target="_blank"
                 rel="noreferrer"
@@ -95,7 +82,7 @@ export default function Home() {
                 Google Scholar <span aria-hidden="true">↗</span>
               </a>
               <a
-                className="quiet-link"
+                className="academic-link"
                 href={siteProfile.links.github}
                 target="_blank"
                 rel="noreferrer"
@@ -105,47 +92,39 @@ export default function Home() {
             </div>
           </div>
 
-          <aside className="hero-profile" aria-label="Academic profile">
+          <aside className="hero-profile" aria-label="Portrait">
             <PortraitToggle />
-            <dl className="hero-facts">
-              <div>
-                <dt>Status</dt>
-                <dd>
-                  <strong>{siteProfile.position.title}</strong>
-                  <span>{siteProfile.position.detail}</span>
-                </dd>
-              </div>
-              <div>
-                <dt>Institution</dt>
-                <dd>
-                  <strong>{siteProfile.institution.name}</strong>
-                  <span>{siteProfile.institution.location}</span>
-                </dd>
-              </div>
-              <div>
-                <dt>Education</dt>
-                <dd className="education-list">
-                  {siteProfile.education.map((entry) => (
-                    <span key={entry.period}>
-                      <time dateTime={entry.startDate}>{entry.period}</time>
-                      <b>{entry.institution}</b>
-                      <small>{entry.degree}</small>
-                    </span>
-                  ))}
-                </dd>
-              </div>
-              <div>
-                <dt>Email</dt>
-                <dd className="profile-emails">
-                  {siteProfile.emails.map((email) => (
-                    <a key={email.address} href={`mailto:${email.address}`}>
-                      {email.address}
-                    </a>
-                  ))}
-                </dd>
-              </div>
-            </dl>
           </aside>
+          <dl className="hero-facts">
+            <div>
+              <dt>Education</dt>
+              <dd className="education-list">
+                {siteProfile.education.map((entry) => (
+                  <span key={entry.period}>
+                    <b>{entry.institution}</b>
+                    <small>
+                      {entry.degree} ·{" "}
+                      <time dateTime={entry.startDate}>{entry.period}</time>
+                    </small>
+                  </span>
+                ))}
+              </dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd className="profile-emails">
+                {siteProfile.emails.map((email) => (
+                  <a key={email.address} href={`mailto:${email.address}`}>
+                    {email.address}
+                  </a>
+                ))}
+              </dd>
+            </div>
+            <div>
+              <dt>Based in</dt>
+              <dd>{siteProfile.institution.location}</dd>
+            </div>
+          </dl>
         </section>
 
         <section className="research" id="research">
@@ -168,8 +147,8 @@ export default function Home() {
           <div className="contact-inner section-shell" data-reveal>
             <h2>Open to Research Collaborations</h2>
             <p>
-              I welcome discussions on long-horizon agents, task-state
-              representation, and learning from recorded interactions.
+              I welcome discussions on agent reasoning, process representation,
+              and inference-time control.
             </p>
             <div className="contact-emails">
               {siteProfile.emails.map((email) => (

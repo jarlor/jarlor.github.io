@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import {
   IBM_Plex_Mono,
   IBM_Plex_Sans,
-  Newsreader,
 } from "next/font/google";
 import { siteProfile } from "./data/site";
 import {
@@ -11,12 +10,6 @@ import {
   THEME_STORAGE_KEY,
 } from "./data/theme";
 import "./globals.css";
-
-const newsreader = Newsreader({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
-});
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-display",
@@ -96,7 +89,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
-        className={`${newsreader.variable} ${plexSans.variable} ${plexMono.variable}`}
+        className={`${plexSans.variable} ${plexMono.variable}`}
       >
         {children}
       </body>

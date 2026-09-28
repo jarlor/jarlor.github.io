@@ -1,7 +1,5 @@
 export const siteProfile = {
   name: "Jiale Zhang",
-  firstName: "Jiale",
-  lastName: "Zhang",
   siteUrl: "https://jarlor.github.io",
   researchTitle: {
     lead: "Long-Horizon",
@@ -12,7 +10,7 @@ export const siteProfile = {
     aside: "Probably.",
   },
   description:
-    "Jiale Zhang studies how long-horizon interaction traces can become decision-relevant process representations for task continuation, reusable experience, and prospective learning.",
+    "Jiale Zhang is a Ph.D. student at Fudan University studying process representation and inference-time control in long-horizon LLM agents, with scientific research as a primary setting.",
   position: {
     title: "Ph.D. Student",
     detail: "Computer Science",

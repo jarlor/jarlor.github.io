@@ -30,6 +30,7 @@ export function PublicationList({
 }) {
   const [selectedWork, setSelectedWork] = useState<PublicationWork | null>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
+  const viewerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!selectedWork) return;
@@ -39,6 +40,22 @@ export function PublicationList({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelectedWork(null);
+      if (event.key !== "Tab") return;
+
+      const controls = viewerRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex="0"]',
+      );
+      if (!controls?.length) return;
+
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -58,7 +75,7 @@ export function PublicationList({
   return (
     <>
       <div className="publication-list">
-        {works.map((work, index) => (
+        {works.map((work) => (
           <article className="publication-entry" key={work.title}>
             <button
               className="publication-row-hit"
@@ -67,21 +84,25 @@ export function PublicationList({
               aria-label={`View details for ${work.title}`}
             />
             <div className="publication-row">
-              <span className="publication-index">0{index + 1}</span>
-              <span className="publication-meta">
-                <span>{work.year}</span>
-                <span>{work.status}</span>
-                <span>{work.area}</span>
+              <span className="publication-thumbnail-frame">
+                <Image
+                  src={work.preview.src}
+                  alt={work.preview.alt}
+                  fill
+                  sizes="(max-width: 720px) 112px, 216px"
+                />
               </span>
-              <span className="publication-main">
-                <span className="publication-title">
+              <div className="publication-main">
+                <h3 className="publication-title">
                   {work.title}
-                  <i aria-hidden="true">↗</i>
-                </span>
-                <span className="publication-authors">
+                </h3>
+                <p className="publication-authors">
                   <Authors names={work.authors} />
-                </span>
-                <span className="publication-resource-links">
+                </p>
+                <p className="publication-venue">
+                  {work.venue}{work.status === "Preprint" ? " preprint" : ""} · {work.year}
+                </p>
+                <div className="publication-resource-links">
                   {work.resources.map((resource) => (
                     <a
                       key={resource.label}
@@ -90,29 +111,18 @@ export function PublicationList({
                       rel="noreferrer"
                     >
                       {resource.label}
-                      <i aria-hidden="true">↗</i>
                     </a>
                   ))}
-                </span>
-              </span>
-              <span className="publication-thumbnail-frame">
-                <Image
-                  src={work.preview.src}
-                  alt={work.preview.alt}
-                  fill
-                  sizes="(max-width: 680px) 96px, 230px"
-                />
-              </span>
-              <span className="publication-side">
-                <span className="publication-venue">{work.venue}</span>
-                <button
-                  className="publication-open"
-                  type="button"
-                  onClick={() => openWork(work)}
-                >
-                  Details <i aria-hidden="true">↗</i>
-                </button>
-              </span>
+                  <button
+                    className="publication-open"
+                    type="button"
+                    onClick={() => openWork(work)}
+                    aria-label={`Details: ${work.title}`}
+                  >
+                    Details <i aria-hidden="true">↗</i>
+                  </button>
+                </div>
+              </div>
             </div>
           </article>
         ))}
@@ -127,6 +137,7 @@ export function PublicationList({
         >
           <article
             className="paper-viewer"
+            ref={viewerRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="paper-viewer-title"

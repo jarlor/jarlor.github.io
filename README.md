@@ -1,9 +1,9 @@
 # Jiale Zhang - Research Homepage
 
-Academic homepage for Jiale Zhang, an incoming Ph.D. student in Computer
-Science at Fudan University. The site presents research on long-horizon LLM
-agents, process representation, task-state reconstruction, and learning from
-recorded agent trajectories.
+Academic homepage for Jiale Zhang, a Ph.D. student in Computer Science at
+Fudan University. The site presents research on process representation and
+inference-time control in long-horizon LLM agents, alongside publications in
+retrieval and agent systems.
 
 ## Local development
 

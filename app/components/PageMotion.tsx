@@ -4,15 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect } from "react";
-import {
-  defaultResearchStageId,
-  isResearchStageId,
-  RESEARCH_STAGE_EVENT,
-  researchStageIds,
-  researchStagesById,
-  type ResearchStageEventDetail,
-  type ResearchStageId,
-} from "../data/research";
+import { heroResearchPhrases } from "../data/research";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -32,7 +24,7 @@ export function PageMotion() {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    let activeId: ResearchStageId = defaultResearchStageId;
+    let activeIndex = 0;
     let phraseTimer: ReturnType<typeof setTimeout>;
     let transition: gsap.core.Timeline | null = null;
 
@@ -46,23 +38,14 @@ export function PageMotion() {
       clearTimeout(phraseTimer);
       if (reducedMotion || document.hidden) return;
       phraseTimer = setTimeout(() => {
-        const activeIndex = researchStageIds.indexOf(activeId);
-        const nextId =
-          researchStageIds[(activeIndex + 1) % researchStageIds.length] ??
-          defaultResearchStageId;
-        setPhrase(nextId, true);
+        setPhrase((activeIndex + 1) % heroResearchPhrases.length);
       }, typewriterMotion.holdDurationMs);
     };
 
-    const setPhrase = (id: ResearchStageId, emit = false) => {
-      if (id === activeId) {
-        scheduleNextPhrase();
-        return;
-      }
-
+    const setPhrase = (index: number) => {
       const previousText = target.textContent?.trim() ?? "";
-      const nextText = researchStagesById[id].heroPhrase;
-      activeId = id;
+      const nextText = heroResearchPhrases[index];
+      activeIndex = index;
       clearTimeout(phraseTimer);
       transition?.kill();
       clearOutgoing();
@@ -132,24 +115,10 @@ export function PageMotion() {
         0.05,
       );
 
-      if (emit) {
-        window.dispatchEvent(
-          new CustomEvent<ResearchStageEventDetail>(RESEARCH_STAGE_EVENT, {
-            detail: { id, source: "hero-cycle" },
-          }),
-        );
-      }
     };
 
-    const handleThemeChange = (event: Event) => {
-      const detail = (event as CustomEvent<ResearchStageEventDetail>).detail;
-      if (isResearchStageId(detail?.id) && detail.source !== "hero-cycle") {
-        setPhrase(detail.id);
-      }
-    };
     const handleVisibility = () => scheduleNextPhrase();
 
-    window.addEventListener(RESEARCH_STAGE_EVENT, handleThemeChange);
     document.addEventListener("visibilitychange", handleVisibility);
     scheduleNextPhrase();
 
@@ -159,7 +128,6 @@ export function PageMotion() {
       clearOutgoing();
       target.classList.remove("is-typing");
       gsap.killTweensOf(target);
-      window.removeEventListener(RESEARCH_STAGE_EVENT, handleThemeChange);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
@@ -186,11 +154,12 @@ export function PageMotion() {
       gsap.fromTo(
         [
           ".hero-name-lockup",
+          ".hero-affiliation",
           ".hero-research-title",
           ".hero-research-statement",
           ".hero-actions",
         ],
-        { autoAlpha: 0, y: 28 },
+        { autoAlpha: 0, y: 12 },
         {
           autoAlpha: 1,
           y: 0,
@@ -202,14 +171,14 @@ export function PageMotion() {
 
       gsap.fromTo(
         ".hero-profile",
-        { autoAlpha: 0, x: 28 },
+        { autoAlpha: 0, x: 12 },
         { autoAlpha: 1, x: 0, duration: 0.95, delay: 0.18, ease: "power3.out" },
       );
 
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((element) => {
         gsap.fromTo(
           element,
-          { autoAlpha: 0, y: 32 },
+          { autoAlpha: 0, y: 16 },
           {
             autoAlpha: 1,
             y: 0,
@@ -240,10 +209,10 @@ export function PageMotion() {
       );
     });
 
-    ["research", "publications"].forEach((sectionId) => {
+    ["research", "publications", "contact"].forEach((sectionId) => {
       ScrollTrigger.create({
         trigger: `#${sectionId}`,
-        start: "top 42%",
+        start: sectionId === "contact" ? "top 75%" : "top 42%",
         end: "bottom 42%",
         onEnter: () => setActiveNav(sectionId),
         onEnterBack: () => setActiveNav(sectionId),
@@ -255,12 +224,6 @@ export function PageMotion() {
       start: "top top",
       end: "bottom 42%",
       onEnterBack: () => setActiveNav(null),
-    });
-
-    ScrollTrigger.create({
-      trigger: "#contact",
-      start: "top 42%",
-      onEnter: () => setActiveNav(null),
     });
 
     return () => {

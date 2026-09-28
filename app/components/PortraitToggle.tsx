@@ -23,7 +23,7 @@ export function PortraitToggle() {
           src="/jiale-zhang-photo.jpg"
           alt=""
           fill
-          sizes="(max-width: 720px) 54vw, (max-width: 960px) 232px, 248px"
+          sizes="(max-width: 720px) 144px, 216px"
           priority
         />
         <Image
@@ -31,7 +31,7 @@ export function PortraitToggle() {
           src="/jarlor-github-avatar.jpg"
           alt=""
           fill
-          sizes="(max-width: 720px) 54vw, (max-width: 960px) 232px, 248px"
+          sizes="(max-width: 720px) 144px, 216px"
         />
       </span>
       <span className="hero-portrait-caption">
